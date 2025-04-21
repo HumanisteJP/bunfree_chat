@@ -1,12 +1,13 @@
 {
   "name": "bunfree_chat",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "コミケ検索チャットアプリ",
+  "main": "src/index.ts",
   "scripts": {
     "start": "ts-node src/index.ts",
-    "build": "tsc",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test:qdrant": "ts-node src/test_qdrant.ts",
+    "test:search": "ts-node src/test_search.ts",
+    "dev": "nodemon --exec ts-node src/index.ts"
   },
   "repository": {
     "type": "git",
@@ -21,13 +22,17 @@
   },
   "homepage": "https://github.com/HumanisteJP/bunfree_chat#readme",
   "devDependencies": {
-    "@types/node": "^22.14.1",
+    "@types/node": "^20.11.16",
+    "nodemon": "^3.0.3",
     "ts-node": "^10.9.2",
-    "typescript": "^5.8.3"
+    "typescript": "^5.3.3"
   },
   "dependencies": {
-    "@langchain/core": "^0.3.45",
-    "@langchain/google-genai": "^0.2.4",
-    "dotenv": "^16.5.0"
+    "@langchain/community": "^0.0.36",
+    "@langchain/core": "^0.2.4",
+    "@langchain/google-genai": "^0.0.10",
+    "@langchain/qdrant": "^0.0.2",
+    "dotenv": "^16.4.1",
+    "qdrant": "^1.7.0"
   }
 }
