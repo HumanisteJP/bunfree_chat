@@ -34,6 +34,9 @@ if (!process.env.QDRANT_URL) {
 const qdrantUrl = process.env.QDRANT_URL;
 const apiKey = process.env.QDRANT_API_KEY;
 
+
+
+
 // LLMの初期化
 const llm = new ChatGoogleGenerativeAI({
   model: "gemini-2.0-flash",
@@ -57,7 +60,7 @@ const qdrantClient = new QdrantClient({
 
 
 // ブース検索関数 - 意味的検索
-async function searchBooths(query: string, limit = 5) {
+async function searchBooths(query: string, limit = 5): Promise<BoothResult[]> {
   try {
     // ベクトル化
     const queryEmbedding = await embeddings.embedQuery(query);
@@ -68,7 +71,7 @@ async function searchBooths(query: string, limit = 5) {
       limit: limit,
       with_payload: true,
       with_vector: false,
-    });
+    }) as unknown as BoothResult[];
     
     // 検索結果をそのまま返す
     return searchResult;
@@ -98,7 +101,7 @@ async function searchBoothByName(circleName: string, limit = 5) {
     });
     
     // 検索結果をそのまま返す
-    return searchResult.points;
+    return searchResult.points as unknown as BoothResult[];
   } catch (error) {
     console.error('サークル名検索でエラーが発生しました:', error);
     return [];
@@ -106,7 +109,7 @@ async function searchBoothByName(circleName: string, limit = 5) {
 }
 
 // アイテム検索関数
-async function searchItems(query: string, limit = 5) {
+async function searchItems(query: string, limit = 5): Promise<ItemResult[]> {
   try {
     // ベクトル化
     const queryEmbedding = await embeddings.embedQuery(query);
@@ -117,7 +120,7 @@ async function searchItems(query: string, limit = 5) {
       limit: limit,
       with_payload: true,
       with_vector: false,
-    });
+    }) as unknown as ItemResult[];
     
     // 検索結果をそのまま返す
     return searchResult;
@@ -296,12 +299,94 @@ const generateAnswer = RunnableSequence.from([
   new StringOutputParser(),
 ]);
 
+// ブース検索結果の型定義
+type BoothResult = {
+  type: string;
+  id: number;
+  score: number;
+  payload: {
+    id: number;
+    name: string;
+    yomi: string;
+    category: string;
+    area: string;
+    area_number: string;
+    members: string | null;
+    twitter: string | null;
+    instagram: string | null;
+    website_url: string | null;
+    description: string;
+    map_number: number;
+    position_top: number;
+    position_left: number;
+    url: string;
+    items: {
+      id: number;
+      booth_id: number;
+      name: string;
+      yomi: string;
+      genre: string;
+      author: string;
+      item_type: string;
+      page_count: number;
+      release_date: string;
+      price: number;
+      url: string;
+      page_url: string;
+      description: string;
+    }[];
+  }
+};
+
+// アイテム検索結果の型定義
+type ItemResult = {
+  type: string;
+  id: number;
+  score: number;
+  payload: {
+    id: number;
+    booth_id: number;
+    name: string;
+    yomi: string;
+    genre: string;
+    author: string;
+    item_type: string;
+    page_count: number;
+    release_date: string;
+    price: number;
+    url: string;
+    page_url: string;
+    description: string;
+    booth_name: string;
+    booth_area: string;
+    booth_area_number: string;
+    booth_details: {
+      id: number;
+      name: string;
+      yomi: string;
+      category: string;
+      area: string;
+      area_number: string;
+      members: string | null;
+      twitter: string | null;
+      instagram: string | null;
+    }
+  }
+};
+
+// LLMレスポンスの型定義
+type LLMResponse = {
+  message: string;
+  boothResults: BoothResult[];
+  itemResults: ItemResult[];
+}
+
 // 回答生成関数
-async function getResponse(userInput: string): Promise<string> {
+async function getResponse(userInput: string): Promise<LLMResponse> {
   try {
     // 検索実行
-    let boothResults: any[] = [];
-    let itemResults: any[] = [];
+    let boothResults: BoothResult[] = [];
+    let itemResults: ItemResult[] = [];
     
     if (userInput.trim()) {
       boothResults = await searchBooths(userInput, 3);
@@ -327,20 +412,34 @@ async function getResponse(userInput: string): Promise<string> {
     // 検索結果をJSON形式で整形
     const formattedResults = JSON.stringify(combinedResults, null, 2);
     
-    // console.log(formattedResults);
+    console.log(formattedResults);
     
     // 検索結果に基づいた回答を生成
     if (combinedResults.length > 0) {
-      return await generateAnswer.invoke({
+      // 通常の文字列出力を使う
+      const responseMessage = await generateAnswer.invoke({
         query: userInput,
         searchResults: formattedResults,
-      });
+      })
+      return {
+        message: responseMessage,
+        boothResults: boothResults,
+        itemResults: itemResults,
+      };
     } else {
-      return `申し訳ありません、「${userInput}」に関する情報は見つかりませんでした。別のキーワードで試してみてください。`;
+      return {
+        message: `ごめん！「${userInput}」の情報、マジ見つからなかった〜！別のキーワードで試してみてくれない？`,
+        boothResults: [],
+        itemResults: [],
+      };
     }
   } catch (error) {
     console.error('処理中にエラーが発生しました:', error);
-    return 'すみません、エラーが発生しました。もう一度お試しください。';
+    return {
+      message: 'ヤバイ！エラーが出ちゃった！もう一回やってみてくれる？',
+      boothResults: [],
+      itemResults: [],
+    };
   }
 }
 
@@ -363,7 +462,7 @@ function showPrompt() {
     } else {
       console.log('検索中...');
       const response = await getResponse(input);
-      console.log(`\n${response}\n`);
+      console.log(`\n${response.message}\n`);
       showPrompt();
     }
   });
