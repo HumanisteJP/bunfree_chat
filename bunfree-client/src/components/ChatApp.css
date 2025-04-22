@@ -209,6 +209,8 @@
   outline: none;
   transition: border-color 0.2s;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: rgba(255, 255, 255, 0.8); /* ここで白色の80%透明度を設定 */
+  backdrop-filter: blur(5px); /* これを追加するとモダンなぼかし効果が出るよ！ */
 }
 
 .input-form input:focus {
