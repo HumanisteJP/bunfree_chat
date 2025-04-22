@@ -101,7 +101,7 @@ const ChatApp = () => {
       }
       
       // APIリクエスト
-      const response = await fetch(`http://localhost:5173/?message=${encodeURIComponent(input + " [前回の会話: " + context + "]")}`);
+      const response = await fetch(`https://bunfree-api.ushida-yosei.workers.dev/?message=${encodeURIComponent(input + " [前回の会話: " + context + "]")}`);
 
       // レスポンスが正常かチェック
       if (!response.ok) {
