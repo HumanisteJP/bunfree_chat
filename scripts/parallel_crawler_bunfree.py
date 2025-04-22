@@ -96,6 +96,21 @@ class ParallelBunfreeCrawler:
                 item_links.append(full_url)
         return list(set(item_links))
 
+    def extract_website_url(self, soup):
+        """WebサイトURLをhref属性から抽出する"""
+        try:
+            # .website_url クラスを持つli要素を検索
+            website_element = soup.select_one('li.website_url')
+            if website_element:
+                # その中のaタグを検索
+                link = website_element.find('a')
+                if link and link.has_attr('href'):
+                    return link['href']
+            return None
+        except Exception as e:
+            print(f"Error extracting website URL: {e}")
+            return None
+
     def parse_booth_page(self, url):
         """ブースページの情報を解析"""
         soup = self.get_soup(url)
@@ -147,7 +162,7 @@ class ParallelBunfreeCrawler:
         
         twitter = self.extract_text(soup, '.twitter')
         instagram = self.extract_text(soup, '.instagram')
-        website_url = self.extract_text(soup, '.website_url')
+        website_url = self.extract_website_url(soup)
         description = self.extract_text(soup, '.note')
         
         # 地図上の位置情報（デフォルトではNone）
