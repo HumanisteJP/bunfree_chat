@@ -159,7 +159,7 @@
 }
 
 .message-content a {
-  color: #007aff;
+  color: #54D0F2;
   text-decoration: none;
 }
 
@@ -183,7 +183,7 @@
   color: #555;
   font-weight: bold;
   padding-left: 5px;
-  border-left: 3px solid #007aff;
+  border-left: 3px solid #54D0F2;
 }
 
 .input-form {
