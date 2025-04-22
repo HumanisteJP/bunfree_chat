@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>マップ位置設定ツール</title>
+    <style>
+        body {
+            font-family: 'Hiragino Sans', 'Meiryo', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            max-width: 1200px;
+            margin: 0 auto;
+            gap: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .map-container {
+            position: relative;
+            overflow: auto;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            line-height: 0;
+        }
+        #map-image {
+            display: block;
+            max-width: 100%;
+            width: 100%;
+            height: auto;
+        }
+        .marker {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: red;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+        }
+        .marker:after {
+            content: attr(data-label);
+            position: absolute;
+            top: -18px;
+            left: 5px;
+            white-space: nowrap;
+            font-size: 12px;
+            background-color: rgba(255,255,255,0.8);
+            padding: 2px 4px;
+        }
+        .control-panel {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+        input, select, button {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 10px 15px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #results {
+            width: 100%;
+            height: 200px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        .result-container {
+            margin-top: 20px;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        #export-btn {
+            background-color: #2196F3;
+        }
+        #export-btn:hover {
+            background-color: #0b7dda;
+        }
+        #clear-btn {
+            background-color: #f44336;
+        }
+        #clear-btn:hover {
+            background-color: #d32f2f;
+        }
+        .info-panel {
+            background-color: #e1f5fe;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .debug-info {
+            margin-top: 5px;
+            font-size: 12px;
+            color: #555;
+        }
+        .mode-selector {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+        .mode-selector label {
+            font-weight: bold;
+        }
+        .mode-description {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+        .tab-buttons {
+            display: flex;
+            margin-bottom: 10px;
+        }
+        .tab-button {
+            background-color: #f0f0f0;
+            color: #333;
+            border: 1px solid #ccc;
+            border-bottom: none;
+            padding: 8px 15px;
+            cursor: pointer;
+        }
+        .tab-button.active {
+            background-color: #fff;
+            font-weight: bold;
+        }
+        .area-tabs {
+            display: flex;
+            margin-bottom: 10px;
+        }
+        .area-tab {
+            background-color: #f0f0f0;
+            color: #333;
+            border: 1px solid #ccc;
+            padding: 8px 15px;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+        .area-tab.active {
+            background-color: #e1f5fe;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>マップ位置設定ツール</h1>
+        
+        <div class="info-panel">
+            <p><strong>使い方：</strong> エリアと番号を選択し、マップ上の対応する場所をクリックして位置を記録します。</p>
+            <div class="debug-info">クリック座標のデバッグ情報: <span id="debug-coords"></span></div>
+        </div>
+        
+        <div class="control-panel">
+            <div class="area-tabs">
+                <button class="area-tab active" data-type="alpha">アルファベットエリア</button>
+                <button class="area-tab" data-type="kana">ひらがなエリア</button>
+            </div>
+            
+            <div class="tab-buttons">
+                <button class="tab-button active" data-mode="horizontal">横方向入力</button>
+                <button class="tab-button" data-mode="vertical">縦方向入力</button>
+            </div>
+            
+            <div id="mode-description" class="mode-description">
+                横方向入力モード: エリア固定で番号が自動的に増加します。同じ行の横方向のポイントを入力するのに便利です。
+            </div>
+            
+            <div class="input-group">
+                <label for="area">エリア:</label>
+                <select id="area" class="alpha-areas">
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                    <option value="D">D</option>
+                    <option value="E">E</option>
+                    <option value="F">F</option>
+                    <option value="G">G</option>
+                    <option value="H">H</option>
+                    <option value="I">I</option>
+                    <option value="J">J</option>
+                    <option value="K">K</option>
+                    <option value="L">L</option>
+                    <option value="M">M</option>
+                    <option value="N">N</option>
+                    <option value="O">O</option>
+                    <option value="P">P</option>
+                    <option value="Q">Q</option>
+                    <option value="R">R</option>
+                    <option value="S">S</option>
+                    <option value="T">T</option>
+                    <option value="U">U</option>
+                </select>
+
+                <select id="kana-area" class="kana-areas" style="display:none;">
+                    <option value="あ">あ</option>
+                    <option value="い">い</option>
+                    <option value="う">う</option>
+                    <option value="え">え</option>
+                    <option value="お">お</option>
+                    <option value="か">か</option>
+                    <option value="き">き</option>
+                    <option value="く">く</option>
+                    <option value="け">け</option>
+                    <option value="こ">こ</option>
+                    <option value="さ">さ</option>
+                    <option value="し">し</option>
+                    <option value="す">す</option>
+                    <option value="せ">せ</option>
+                    <option value="そ">そ</option>
+                    <option value="た">た</option>
+                    <option value="ち">ち</option>
+                    <option value="つ">つ</option>
+                    <option value="て">て</option>
+                    <option value="と">と</option>
+                </select>
+                
+                <label for="number">番号:</label>
+                <input type="text" id="number" placeholder="01-92">
+                
+                <button id="add-btn">手動で追加</button>
+            </div>
+            
+            <div class="input-group">
+                <input type="checkbox" id="auto-increment" checked>
+                <label for="auto-increment">自動的に増加</label>
+                
+                <input type="checkbox" id="only-show-current-area" checked>
+                <label for="only-show-current-area">現在のエリアのみ表示</label>
+            </div>
+        </div>
+        
+        <div class="map-container">
+            <img id="map-image" src="map_1.webp" alt="Map">
+        </div>
+        
+        <div class="result-container">
+            <h2>結果</h2>
+            <textarea id="results" readonly></textarea>
+            <div class="action-buttons">
+                <button id="export-btn">JSONとしてエクスポート</button>
+                <button id="clear-btn">クリア</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const mapImage = document.getElementById('map-image');
+            const mapContainer = document.querySelector('.map-container');
+            const areaSelect = document.getElementById('area');
+            const kanaAreaSelect = document.getElementById('kana-area');
+            const numberInput = document.getElementById('number');
+            const addBtn = document.getElementById('add-btn');
+            const autoIncrementCheckbox = document.getElementById('auto-increment');
+            const onlyShowCurrentAreaCheckbox = document.getElementById('only-show-current-area');
+            const resultsTextarea = document.getElementById('results');
+            const exportBtn = document.getElementById('export-btn');
+            const clearBtn = document.getElementById('clear-btn');
+            const debugCoords = document.getElementById('debug-coords');
+            const modeDescription = document.getElementById('mode-description');
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const areaTabs = document.querySelectorAll('.area-tab');
+            
+            let markers = [];
+            let positions = {};
+            let currentMode = 'horizontal'; // 初期モードは横方向
+            let currentAreaType = 'alpha'; // 初期エリアタイプはアルファベット
+            
+            // グローバルスコープからアクセスできるようにする
+            window.currentAreaType = currentAreaType;
+            
+            // エリアタブ切り替え
+            areaTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    areaTabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    currentAreaType = this.getAttribute('data-type');
+                    window.currentAreaType = currentAreaType; // グローバル変数も更新
+                    
+                    if (currentAreaType === 'alpha') {
+                        document.querySelector('.alpha-areas').style.display = 'inline-block';
+                        document.querySelector('.kana-areas').style.display = 'none';
+                        mapImage.src = 'map_1.webp'; // アルファベットエリアの画像
+                    } else {
+                        document.querySelector('.alpha-areas').style.display = 'none';
+                        document.querySelector('.kana-areas').style.display = 'inline-block';
+                        mapImage.src = 'map_2.webp'; // 平仮名エリアの画像
+                    }
+                    
+                    updateMarkerVisibility();
+                });
+            });
+            
+            // タブボタンの切り替え処理
+            tabButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // アクティブクラスを全てのボタンから削除
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    
+                    // クリックされたボタンにアクティブクラスを追加
+                    this.classList.add('active');
+                    
+                    // モードを更新
+                    currentMode = this.getAttribute('data-mode');
+                    
+                    // モード説明を更新
+                    if (currentMode === 'horizontal') {
+                        modeDescription.textContent = "横方向入力モード: エリア固定で番号が自動的に増加します。同じ行の横方向のポイントを入力するのに便利です。";
+                    } else {
+                        modeDescription.textContent = "縦方向入力モード: 番号固定でエリアが自動的に切り替わります。同じ列の縦方向のポイントを入力するのに便利です。";
+                    }
+                });
+            });
+            
+            // 画像がロードされたら正確なサイズを取得するためのイベント
+            mapImage.onload = function() {
+                console.log("画像サイズ:", mapImage.naturalWidth, "x", mapImage.naturalHeight);
+            };
+            
+            // 現在のエリア選択を取得する関数
+            function getCurrentArea() {
+                if (currentAreaType === 'alpha') {
+                    return areaSelect.value;
+                } else {
+                    return kanaAreaSelect.value;
+                }
+            }
+            
+            // エリア文字を次に進める関数
+            function getNextArea(currentArea) {
+                if (currentAreaType === 'alpha') {
+                    const areas = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U'];
+                    const currentIndex = areas.indexOf(currentArea);
+                    
+                    if (currentIndex < 0 || currentIndex >= areas.length - 1) {
+                        return currentArea; // 見つからないか最後のエリアの場合は変更なし
+                    }
+                    
+                    return areas[currentIndex + 1];
+                } else {
+                    const kanas = ['あ','い','う','え','お','か','き','く','け','こ','さ','し','す','せ','そ','た','ち','つ','て','と'];
+                    const currentIndex = kanas.indexOf(currentArea);
+                    
+                    if (currentIndex < 0 || currentIndex >= kanas.length - 1) {
+                        return currentArea;
+                    }
+                    
+                    return kanas[currentIndex + 1];
+                }
+            }
+            
+            // マップクリックイベントを追加
+            mapImage.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // クリック位置を取得
+                const rect = mapImage.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                // 画像の実際の表示サイズを取得
+                const displayWidth = rect.width;
+                const displayHeight = rect.height;
+                
+                // 相対位置（0～1の範囲）を計算
+                const relX = x / displayWidth;
+                const relY = y / displayHeight;
+                
+                // デバッグ情報を表示
+                debugCoords.textContent = `クリック: (${x.toFixed(1)}, ${y.toFixed(1)}), 相対: (${relX.toFixed(4)}, ${relY.toFixed(4)}), 画像表示サイズ: ${displayWidth.toFixed(0)}x${displayHeight.toFixed(0)}`;
+                
+                // 現在選択されているエリアと番号を取得
+                const area = getCurrentArea();
+                const number = numberInput.value;
+                
+                if (!number || number.trim() === '') {
+                    alert('番号を入力してください');
+                    return;
+                }
+                
+                // マーカーを作成して追加
+                addMarker(area, number, relX, relY);
+                
+                // 自動的に増加（モードによって挙動が変わる）
+                if (autoIncrementCheckbox.checked) {
+                    try {
+                        if (currentMode === 'horizontal') {
+                            // 横方向モード: 番号を増やす
+                            const nextNumber = parseInt(number) + 1;
+                            numberInput.value = nextNumber.toString().padStart(2, '0');
+                        } else {
+                            // 縦方向モード: エリアを次に進める
+                            const nextArea = getNextArea(area);
+                            if (currentAreaType === 'alpha') {
+                                areaSelect.value = nextArea;
+                            } else {
+                                kanaAreaSelect.value = nextArea;
+                            }
+                        }
+                    } catch (error) {
+                        console.error("自動増加に失敗しました:", error);
+                    }
+                }
+                
+                updateResults();
+            });
+            
+            // 手動で追加ボタンのイベント
+            addBtn.addEventListener('click', function() {
+                const area = getCurrentArea();
+                const number = numberInput.value;
+                
+                if (!number || number.trim() === '') {
+                    alert('番号を入力してください');
+                    return;
+                }
+                
+                // ダイアログで座標を入力
+                const x = prompt("X座標（0～1の間）を入力してください:");
+                const y = prompt("Y座標（0～1の間）を入力してください:");
+                
+                if (x === null || y === null) return;
+                
+                const relX = parseFloat(x);
+                const relY = parseFloat(y);
+                
+                if (isNaN(relX) || isNaN(relY) || relX < 0 || relX > 1 || relY < 0 || relY > 1) {
+                    alert('座標は0～1の間の数値で入力してください');
+                    return;
+                }
+                
+                // マーカーを追加
+                addMarker(area, number, relX, relY);
+                
+                // 自動的に増加（モードによって挙動が変わる）
+                if (autoIncrementCheckbox.checked) {
+                    try {
+                        if (currentMode === 'horizontal') {
+                            // 横方向モード: 番号を増やす
+                            const nextNumber = parseInt(number) + 1;
+                            numberInput.value = nextNumber.toString().padStart(2, '0');
+                        } else {
+                            // 縦方向モード: エリアを次に進める
+                            const nextArea = getNextArea(area);
+                            if (currentAreaType === 'alpha') {
+                                areaSelect.value = nextArea;
+                            } else {
+                                kanaAreaSelect.value = nextArea;
+                            }
+                        }
+                    } catch (error) {
+                        console.error("自動増加に失敗しました:", error);
+                    }
+                }
+                
+                updateResults();
+            });
+            
+            // エリアが変更されたら関連するマーカーの表示を更新
+            areaSelect.addEventListener('change', function() {
+                updateMarkerVisibility();
+            });
+            
+            kanaAreaSelect.addEventListener('change', function() {
+                updateMarkerVisibility();
+            });
+            
+            // チェックボックスが変更されたら関連するマーカーの表示を更新
+            onlyShowCurrentAreaCheckbox.addEventListener('change', function() {
+                updateMarkerVisibility();
+            });
+            
+            // マーカーを追加する関数
+            function addMarker(area, number, x, y) {
+                const marker = document.createElement('div');
+                marker.className = 'marker';
+                marker.dataset.area = area;
+                marker.dataset.number = number;
+                marker.dataset.label = `${area}-${number}`;
+                marker.style.left = (x * 100) + '%';
+                marker.style.top = (y * 100) + '%';
+                
+                mapContainer.appendChild(marker);
+                
+                markers.push(marker);
+                
+                // 位置情報を記録
+                const key = `${area}-${number}`;
+                positions[key] = {
+                    area: area,
+                    number: number,
+                    x: parseFloat(x.toFixed(6)),
+                    y: parseFloat(y.toFixed(6))
+                };
+                
+                updateMarkerVisibility();
+                console.log(`マーカー追加: ${area}-${number} at (${x.toFixed(4)}, ${y.toFixed(4)})`);
+            }
+            
+            // マーカーの表示/非表示を更新する関数
+            function updateMarkerVisibility() {
+                const currentArea = getCurrentArea();
+                const onlyShowCurrentArea = onlyShowCurrentAreaCheckbox.checked;
+                
+                markers.forEach(marker => {
+                    // 現在のエリアタイプに合わせてマーカーを表示/非表示
+                    const markerAreaType = isKanaArea(marker.dataset.area) ? 'kana' : 'alpha';
+                    
+                    if (markerAreaType !== window.currentAreaType) {
+                        marker.style.display = 'none';
+                        return;
+                    }
+                    
+                    if (onlyShowCurrentArea) {
+                        marker.style.display = (marker.dataset.area === currentArea) ? 'block' : 'none';
+                    } else {
+                        marker.style.display = 'block';
+                    }
+                });
+            }
+            
+            // 平仮名エリアかどうかを判定する関数
+            function isKanaArea(area) {
+                return /^[ぁ-ゖ]$/.test(area); // 日本語のひらがなかどうか
+            }
+            
+            // 結果を更新する関数
+            function updateResults() {
+                // SQLite用のSQLステートメントを生成
+                let sql = '-- SQLite用のUPDATEステートメント\n';
+                
+                for (const key in positions) {
+                    const pos = positions[key];
+                    sql += `UPDATE booths SET position_top = ${pos.y}, position_left = ${pos.x}, map_number = 1 WHERE area = '${pos.area}' AND area_number = '${pos.number}';\n`;
+                }
+                
+                // JSON形式のデータも追加
+                sql += '\n-- JSON形式のデータ\n';
+                sql += JSON.stringify(positions, null, 2);
+                
+                resultsTextarea.value = sql;
+            }
+            
+            // キーボードショートカット
+            document.addEventListener('keydown', function(e) {
+                // Tabキーでモード切り替え
+                if (e.key === 'Tab') {
+                    e.preventDefault();
+                    if (currentMode === 'horizontal') {
+                        document.querySelector('[data-mode="vertical"]').click();
+                    } else {
+                        document.querySelector('[data-mode="horizontal"]').click();
+                    }
+                }
+            });
+            
+            // 初期フォーカス
+            numberInput.focus();
+
+            // エクスポートボタンのイベント
+            exportBtn.addEventListener('click', function() {
+                const json = JSON.stringify(positions, null, 2);
+                const blob = new Blob([json], {type: 'application/json'});
+                const url = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                // エリアタイプに応じたファイル名
+                const fileName = currentAreaType === 'alpha' ? 'map_positions.json' : 'map_positions_kana.json';
+                a.download = fileName;
+                a.click();
+                
+                URL.revokeObjectURL(url);
+            });
+        });
+    </script>
+</body>
+</html> 

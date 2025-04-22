@@ -10,13 +10,14 @@ import { vectorSearchPrompt, boothNameSearchPrompt, eventInfoPrompt, generalChat
 // ベクトル検索処理
 async function handleVectorSearch(
     query: string,
+    searchQuery: string,
     embeddings: VoyageEmbeddings,
     qdrantClient: QdrantClient,
     llm: ChatGoogleGenerativeAI
 ): Promise<LLMResponse> {
-    // 検索実行
-    const boothResults = await searchBooths(query, embeddings, qdrantClient, 3);
-    const itemResults = await searchItems(query, embeddings, qdrantClient, 3);
+    // 検索実行（最適化されたクエリを使用）
+    const boothResults = await searchBooths(searchQuery, embeddings, qdrantClient, 3);
+    const itemResults = await searchItems(searchQuery, embeddings, qdrantClient, 3);
 
     // 検索結果を統合
     const combinedResults = [

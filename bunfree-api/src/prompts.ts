@@ -7,12 +7,33 @@ const classifyQueryPrompt = PromptTemplate.fromTemplate(`
     
     以下のカテゴリから1つだけ選んでください:
     - BOOTH_NAME_SEARCH<booth_name>: ユーザーが特定のサークル名／ブース名で検索しようとしている場合。<booth_name>の部分には実際のサークル名を入れてください。例: BOOTH_NAME_SEARCH<青空文庫>
-    - VECTOR_SEARCH: ユーザーがキーワードや内容で検索しようとしている（具体的なサークル名は指定していない）
+    - VECTOR_SEARCH<search_query>: ユーザーがキーワードや内容で検索しようとしている（具体的なサークル名は指定していない）。<search_query>の部分には検索に最適化されたクエリを入れてください。例: VECTOR_SEARCH<SF小説 宇宙 探検>
     - GENERAL_CHAT: ユーザーが挨拶や雑談をしている（文学フリマのことを聞かれていないだけでなく全く関係ないと革新できる場合のみこれそうでない雑多な場合はEVENT_INFOになる）
     - EVENT_INFO: ユーザーが文学フリマそのものについて質問している（入場料、開催場所、日時、飲食の可否など）、また腹痛や迷子といったサポートについて質問している
     
     回答は必ず上記のカテゴリ名のみを返してください。余計な説明は不要です。
     BOOTH_NAME_SEARCHの場合は、必ずブース名を<>で囲んで返してください。例: BOOTH_NAME_SEARCH<青空文庫>
+    VECTOR_SEARCHの場合は、必ず検索クエリを<>で囲んで返してください。例: VECTOR_SEARCH<SF小説 宇宙 探検>
+`);
+
+// 検索クエリ生成プロンプト
+const searchQueryGenerationPrompt = PromptTemplate.fromTemplate(`
+    あなたは検索クエリを最適化するヘルパーAIです。ユーザーの質問から、ベクトル検索に適した検索クエリを作成してください。
+    
+    ユーザーの質問: {query}
+    
+    以下のガイドラインに従ってください：
+    1. 検索に重要なキーワードのみを抽出してください
+    2. 助詞や冗長な表現は削除してください
+    3. ジャンル、内容、テーマなどの重要な要素を含めてください
+    4. キーワードは空白で区切ってください
+    5. 結果は検索クエリのみを返してください（余計な説明は不要です）
+    
+    例：
+    「SF系の宇宙を舞台にした小説を探しています」→「SF 宇宙 小説」
+    「江戸時代の歴史小説で安いものはありますか？」→「江戸時代 歴史小説 安い」
+    
+    検索クエリ:
 `);
 
 // イベント情報回答プロンプト
@@ -26,6 +47,8 @@ const eventInfoPrompt = PromptTemplate.fromTemplate(`
     2. 質問に直接関係する情報だけを含め、不要な詳細は省略してください。
     3. 回答は「〜だよね！」「〜じゃん？」などの同意を求める表現で締めくくるとより親しみやすくなります。
     4. 詳細な情報は文フリの公式ホームページ（https://bunfree.net/）やX（Twitter）などで確認するように促してください。
+    5. ユーザーごとのtiwtterのurlはhttps://x.com/usernameです。
+    6. URLがある場合はいい感じにリンクにすること。
     
     文学フリマ基本情報：
     文学フリマ (ぶんがくフリマ / 文フリ): 小説、短歌、俳句、批評、ノンフィクション、エッセイ、ZINEなど様々な文学作品の展示即売会。
@@ -75,6 +98,9 @@ const vectorSearchPrompt = PromptTemplate.fromTemplate(`
     4. 質問に直接関係する情報だけを含め、不要な詳細は省略してください。
     5. 回答は「〜だよね！」「〜じゃん？」などの同意を求める表現で締めくくるとより親しみやすくなります。
     6. 検索結果がない場合は、「ごめん！見つからなかった〜」と伝え、別の検索キーワードを提案してください。
+    7. 検索結果はわかりやすいように箇条書きにしてください。
+    8. ユーザーごとのtiwtterのurlはhttps://x.com/usernameです。instagramはhttps://www.instagram.com/username/です。
+    9. URLがある場合はいい感じにリンクにすること。
     
     回答:
 `);
@@ -96,10 +122,12 @@ const boothNameSearchPrompt = PromptTemplate.fromTemplate(`
     5. 質問に直接関係する情報だけを含め、不要な詳細は省略してください。
     6. 回答は「〜だよね！」「〜じゃん？」などの同意を求める表現で締めくくるとより親しみやすくなります。
     7. 検索結果がない場合は、「ごめん！そのサークル見つからなかった〜」と伝え、似た名前のサークルや別の検索方法を提案してください。
+    8. ユーザーごとのtiwtterのurlはhttps://x.com/usernameです。instagramはhttps://www.instagram.com/username/です。
+    9. URLがある場合はいい感じにリンクにすること。
     
     回答:
 `);
     
 
-export { classifyQueryPrompt, eventInfoPrompt, generalChatPrompt, vectorSearchPrompt, boothNameSearchPrompt };
+export { classifyQueryPrompt, eventInfoPrompt, generalChatPrompt, vectorSearchPrompt, boothNameSearchPrompt, searchQueryGenerationPrompt };
     

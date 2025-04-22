@@ -4,7 +4,7 @@ import { StringOutputParser } from "@langchain/core/output_parsers";
 import { RunnableSequence, RunnableBranch } from "@langchain/core/runnables";
 import { QdrantClient } from '@qdrant/js-client-rest';
 import { LLMResponse } from './types';
-import { classifyQueryPrompt } from './prompts';
+import { classifyQueryPrompt, searchQueryGenerationPrompt } from './prompts';
 import { handleVectorSearch, handleBoothNameSearch, handleEventInfo, handleGeneralChat } from './handlers';
 // 回答生成関数
 async function getLlmAIResponse(userInput: string,qdrantUrl: string,qdrantApiKey: string,geminiApiKey: string,voyageApiKey: string): Promise<LLMResponse> {
@@ -36,6 +36,13 @@ async function getLlmAIResponse(userInput: string,qdrantUrl: string,qdrantApiKey
     new StringOutputParser(),
   ]);
 
+  // 検索クエリ生成チェーン
+  const searchQueryGenerationChain = RunnableSequence.from([
+    searchQueryGenerationPrompt,
+    llm,
+    new StringOutputParser(),
+  ]);
+
   // RunnableBranchによる分岐処理
   const branchProcessor = RunnableBranch.from([
     [
@@ -51,8 +58,18 @@ async function getLlmAIResponse(userInput: string,qdrantUrl: string,qdrantApiKey
     [
       (x: { queryType: string; originalQuery: string }) =>
         x.queryType.includes('VECTOR_SEARCH'),
-      async (x: { queryType: string; originalQuery: string }) => 
-        handleVectorSearch(x.originalQuery, embeddings, qdrantClient, llm)
+      async (x: { queryType: string; originalQuery: string }) => {
+        // VECTOR_SEARCH<検索クエリ>の形式から検索クエリを抽出
+        const match = x.queryType.match(/VECTOR_SEARCH<(.+?)>/);
+        let searchQuery = match ? match[1] : '';
+        
+        // 検索クエリが抽出できなかった場合は元のクエリからクエリを生成
+        if (!searchQuery) {
+          searchQuery = await searchQueryGenerationChain.invoke({ query: x.originalQuery });
+        }
+        
+        return handleVectorSearch(x.originalQuery, searchQuery, embeddings, qdrantClient, llm);
+      }
     ],
     [
       (x: { queryType: string; originalQuery: string }) =>
@@ -66,9 +83,11 @@ async function getLlmAIResponse(userInput: string,qdrantUrl: string,qdrantApiKey
       async (x: { queryType: string; originalQuery: string }) => 
         handleGeneralChat(x.originalQuery, llm)
     ],
-    // デフォルト処理はベクトル検索
-    async (x: { queryType: string; originalQuery: string }) => 
-      handleVectorSearch(x.originalQuery, embeddings, qdrantClient, llm)
+    // デフォルト処理はベクトル検索（検索クエリを生成してから検索）
+    async (x: { queryType: string; originalQuery: string }) => {
+      const searchQuery = await searchQueryGenerationChain.invoke({ query: x.originalQuery });
+      return handleVectorSearch(x.originalQuery, searchQuery, embeddings, qdrantClient, llm);
+    }
   ]);
 
   // メイン処理チェーン

@@ -1,0 +1,316 @@
+.map-viewer {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin: 16px 0;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #f5f5f5;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.map-container {
+  position: relative;
+  width: 100%;
+  line-height: 0;
+  overflow: hidden;
+}
+
+.map-image {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.booth-marker {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background-color: #333;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.2s ease;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.2);
+}
+
+/* アイテム検索結果から表示されるマーカーのスタイル */
+.item-marker {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background-color: #666;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.2s ease;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.2);
+}
+
+.item-marker:hover {
+  width: 16px;
+  height: 16px;
+  background-color: #444;
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.3);
+  z-index: 20;
+}
+
+.item-marker .marker-label {
+  background-color: rgba(51, 51, 51, 0.9);
+  color: #fff;
+}
+
+.booth-marker:hover {
+  width: 16px;
+  height: 16px;
+  background-color: #000;
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.3);
+  z-index: 20;
+}
+
+.marker-label {
+  position: absolute;
+  top: -28px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #333;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  line-height: 1.2;
+  white-space: nowrap;
+  font-weight: bold;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  min-height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+/* マーカーラベルを表示（ホバー時のみ） */
+.booth-marker:hover::after,
+.item-marker:hover::after {
+  content: attr(title);
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(255, 255, 255, 0.95);
+  color: #333;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  line-height: 1.2;
+  white-space: nowrap;
+  font-weight: bold;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  z-index: 50;
+  min-height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  animation: fadeInLabel 0.15s ease-out forwards;
+  pointer-events: none;
+  transform-origin: center bottom;
+  will-change: transform, opacity;
+}
+
+@keyframes fadeInLabel {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* 選択中や閉じている最中はラベルを表示しない */
+.booth-marker.selected:hover::after,
+.item-marker.selected:hover::after,
+.booth-marker.closing-marker:hover::after,
+.item-marker.closing-marker:hover::after {
+  display: none;
+}
+
+.map-controls {
+  display: flex;
+  padding: 8px;
+  border-top: 1px solid #ddd;
+  background-color: #fff;
+}
+
+.map-controls button {
+  flex: 1;
+  padding: 8px 16px;
+  margin: 0 4px;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.map-controls button:hover {
+  background-color: #e0e0e0;
+}
+
+.map-controls button.active {
+  background-color: #333;
+  color: white;
+  border-color: #111;
+}
+
+/* 選択されたブースのスタイル */
+.booth-marker.selected,
+.item-marker.selected {
+  width: 18px;
+  height: 18px;
+  background-color: #000;
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.5);
+  z-index: 30;
+}
+
+/* 閉じているときのマーカースタイル */
+.booth-marker.closing-marker,
+.item-marker.closing-marker {
+  width: 16px;
+  height: 16px;
+  background-color: #333;
+  transition: all 0.2s ease;
+  z-index: 25;
+}
+
+/* ブース詳細表示のスタイル */
+.booth-detail {
+  position: absolute;
+  top: -120px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(255, 255, 255, 0.95);
+  color: #333;
+  padding: 10px 15px;
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1.4;
+  width: 220px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  z-index: 40;
+  max-height: 200px;
+  overflow-y: auto;
+  opacity: 0;
+  animation: fadeInDetail 0.2s ease forwards;
+  transform-origin: center;
+  will-change: transform, opacity;
+}
+
+/* 閉じるアニメーション */
+.booth-detail.closing {
+  animation: fadeOutDetail 0.2s ease forwards;
+}
+
+@keyframes fadeInDetail {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+}
+
+@keyframes fadeOutDetail {
+  0% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.95);
+  }
+}
+
+.booth-detail h3 {
+  margin: 0 0 5px 0;
+  font-size: 14px;
+  font-weight: bold;
+  color: #000;
+}
+
+.booth-detail p {
+  margin: 0 0 8px 0;
+  font-size: 12px;
+}
+
+.booth-description {
+  font-size: 11px;
+  color: #555;
+  max-height: 60px;
+  overflow-y: auto;
+  margin-bottom: 8px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #eee;
+}
+
+.url-button {
+  display: block;
+  width: 100%;
+  padding: 6px 0;
+  background-color: #222;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  text-align: center;
+}
+
+.url-button:hover {
+  background-color: #000;
+}
+
+/* 閉じるボタンのスタイル */
+.close-button {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 20px;
+  height: 20px;
+  background-color: transparent;
+  border: none;
+  border-radius: 50%;
+  font-size: 16px;
+  line-height: 1;
+  padding: 0;
+  color: #666;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.close-button:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+  color: #000;
+  transform: scale(1.05);
+}
+
+.close-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+} 
