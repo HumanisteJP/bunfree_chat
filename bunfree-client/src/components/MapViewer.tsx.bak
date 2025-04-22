@@ -15,7 +15,6 @@ const MapViewer: React.FC<MapViewerProps> = ({ boothResults, itemResults = [], o
   const [selectedBooth, setSelectedBooth] = useState<any>(null);
   const [closingBooth, setClosingBooth] = useState<any>(null);
   const mapContainerRef = useRef<HTMLDivElement>(null);
-  const mapViewerRef = useRef<HTMLDivElement>(null);
 
   // エリア名からマップ番号を判断する関数
   const getMapNumberFromArea = (area: string): number => {
@@ -87,29 +86,11 @@ const MapViewer: React.FC<MapViewerProps> = ({ boothResults, itemResults = [], o
     handleCloseDetail();
   };
 
-  // ドキュメント全体のクリックで詳細を閉じるためのイベントリスナーを追加
-  useEffect(() => {
-    // 詳細が選択されている時のみイベントを監視する
-    if (selectedBooth) {
-      const handleDocumentClick = (event: MouseEvent) => {
-        // MapViewer以外の場所がクリックされた場合のみ詳細を閉じる
-        if (mapViewerRef.current && !mapViewerRef.current.contains(event.target as Node)) {
-          handleCloseDetail();
-        }
-      };
-      
-      // documentにクリックイベントリスナーを追加
-      document.addEventListener('click', handleDocumentClick);
-      
-      // クリーンアップ関数（コンポーネントのアンマウント時に実行）
-      return () => {
-        document.removeEventListener('click', handleDocumentClick);
-      };
-    }
-  }, [selectedBooth]); // selectedBoothが変更されたときに再実行
-
   // デバッグ用：受け取ったブースデータをログに出力
   useEffect(() => {
+    console.log('MapViewer received boothResults:', boothResults);
+    console.log('MapViewer received itemResults:', itemResults);
+    
     if (boothResults && boothResults.length > 0) {
       // ブースのエリアタイプをチェック
       const areaTypes = new Set<number>();
@@ -122,6 +103,8 @@ const MapViewer: React.FC<MapViewerProps> = ({ boothResults, itemResults = [], o
         // ブースのmap_numberを上書き
         booth.payload.map_number = mapNum;
       });
+      
+      console.log('Detected area types:', Array.from(areaTypes));
       
       // 最初は1番のマップを表示
       if (areaTypes.has(1)) {
@@ -140,6 +123,7 @@ const MapViewer: React.FC<MapViewerProps> = ({ boothResults, itemResults = [], o
         return getMapNumberFromArea(area) === mapNumber;
       });
       setFilteredBooths(filtered);
+      console.log(`Filtered booths for map ${mapNumber}:`, filtered.length);
     }
 
     // itemResultsからブース情報を抽出してフィルタリング
@@ -161,6 +145,7 @@ const MapViewer: React.FC<MapViewerProps> = ({ boothResults, itemResults = [], o
       });
       
       setFilteredItemBooths(filteredItems);
+      console.log(`Filtered item booths for map ${mapNumber}:`, filteredItems.length);
     }
     
     // マップを切り替えたら選択状態をリセット
@@ -185,7 +170,7 @@ const MapViewer: React.FC<MapViewerProps> = ({ boothResults, itemResults = [], o
   };
 
   return (
-    <div className="map-viewer" ref={mapViewerRef}>
+    <div className="map-viewer">
       <div 
         className="map-container" 
         ref={mapContainerRef}
