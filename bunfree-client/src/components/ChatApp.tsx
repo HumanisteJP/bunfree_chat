@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { LLMResponse } from '../types';
 import MapViewer from './MapViewer';
 import './ChatApp.css';
@@ -27,6 +27,40 @@ const ChatApp = () => {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const messageEndRef = useRef<HTMLDivElement>(null);
+
+  // 質問例の配列を定義
+  const genreExamples = [
+    "青春",
+    "恋愛",
+    "ファンタジー",
+    "SF",
+    "ミステリー",
+    "歴史",
+    "哲学",
+    "詩",
+    "エッセイ",
+    "ホラー"
+  ];
+
+  const bunfriExamples = [
+    "文フリはいつ開催？",
+    "初めての文フリ参加について教えて",
+    "文フリのサークル申し込み方法は？",
+    "文フリの持ち物リストを教えて",
+    "文フリの人気ジャンルは？",
+    "文フリの会場はどこ？",
+    "文フリの当日の流れを教えて",
+    "文フリでの本の値段相場は？",
+    "文フリのイベントスペースについて",
+    "文フリでの支払い方法は？"
+  ];
+
+  // ランダムな質問例を選択する
+  const randomExample = useMemo(() => {
+    const randomGenre = genreExamples[Math.floor(Math.random() * genreExamples.length)];
+    const randomBunfri = bunfriExamples[Math.floor(Math.random() * bunfriExamples.length)];
+    return `「${randomGenre}」や「${randomBunfri}」などのキーワードで質問してみてください！`;
+  }, []);
 
   // 初期化時にIndexedDBからチャット履歴を読み込む
   useEffect(() => {
@@ -211,7 +245,7 @@ const ChatApp = () => {
           <div className="message-list">
             {messages.length === 0 && (
               <div className="empty-state">
-                「青春」や「文フリはいつ開催？」などのキーワードで質問してみてください！
+                {randomExample}
               </div>
             )}
 
