@@ -14,7 +14,6 @@ const MapViewer: React.FC<MapViewerProps> = ({ boothResults, itemResults = [], o
   const [filteredItemBooths, setFilteredItemBooths] = useState<any[]>([]);
   const [selectedBooth, setSelectedBooth] = useState<any>(null);
   const [closingBooth, setClosingBooth] = useState<any>(null);
-  const [isClosing, setIsClosing] = useState<boolean>(false);
   const mapContainerRef = useRef<HTMLDivElement>(null);
 
   // エリア名からマップ番号を判断する関数
@@ -59,13 +58,11 @@ const MapViewer: React.FC<MapViewerProps> = ({ boothResults, itemResults = [], o
   const handleCloseDetail = () => {
     if (selectedBooth) {
       setClosingBooth(selectedBooth);
-      setIsClosing(true);
       setSelectedBooth(null);
       
       // アニメーション完了後に閉じたブース情報をクリア
       setTimeout(() => {
         setClosingBooth(null);
-        setIsClosing(false);
       }, 200); // アニメーション時間と同じ
     }
   };
@@ -249,4 +246,4 @@ const MapViewer: React.FC<MapViewerProps> = ({ boothResults, itemResults = [], o
   );
 };
 
-export default MapViewer; 
+export default MapViewer;

@@ -7,7 +7,7 @@ import MarkdownIt from 'markdown-it';
 // lucide-reactから送信アイコンをインポート
 import { SendIcon, Trash2Icon } from 'lucide-react';
 // データベース関連のインポート
-import { getAllMessagesChronological, saveMessage, clearAllMessages, ChatMessage } from '../db/db';
+import { getAllMessagesChronological, saveMessage, clearAllMessages } from '../db/db';
 
 // マークダウンパーサーを初期化
 const md = new MarkdownIt({
@@ -49,13 +49,25 @@ const ChatApp = () => {
     loadMessages();
   }, []);
 
-  // 自動スクロール - windowオブジェクトにスクロール
+  // 自動スクロール - メッセージが追加されたらスクロール
   useEffect(() => {
     if (messageEndRef.current) {
+      // モバイルSafariなどでもスクロールが確実に効くように複数の方法でスクロール
       window.scrollTo({
         top: document.body.scrollHeight,
         behavior: 'smooth'
       });
+      
+      // 少し遅延させてスクロールを確実にする
+      setTimeout(() => {
+        window.scrollTo({
+          top: document.body.scrollHeight,
+          behavior: 'auto'
+        });
+        
+        // messageEndRefの要素も表示範囲内に入れる
+        messageEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
     }
   }, [messages]);
 
@@ -228,6 +240,7 @@ const ChatApp = () => {
               </div>
             ))}
 
+            {/* ローディングインジケータ */}
             {loading && (
               <div className="message assistant">
                 <div className="loading-indicator">
@@ -238,7 +251,8 @@ const ChatApp = () => {
               </div>
             )}
 
-            <div ref={messageEndRef} />
+            {/* スクロール用の参照ポイント - 常に表示 */}
+            <div ref={messageEndRef} className="scroll-marker" />
           </div>
         </div>
         <form className="input-form" onSubmit={handleSubmit}>
