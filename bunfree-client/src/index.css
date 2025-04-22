@@ -29,3 +29,17 @@ button, a, div[role="button"], .booth-marker, .item-marker, .map-controls button
   -webkit-tap-highlight-color: transparent;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
+
+
+
+html, body {
+  overflow: hidden;
+  height: 100%;
+  width: 100%;
+  position: fixed;
+}
+
+#root {
+  height: 100%;
+  overflow: hidden;
+}
