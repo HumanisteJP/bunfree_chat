@@ -1,5 +1,6 @@
 import { Hono } from 'hono'
 import { env } from 'hono/adapter'
+import { cors } from 'hono/cors'
 import z from 'zod'
 import { getLlmAIResponse } from './getLlmAIResponse'
 
@@ -15,6 +16,15 @@ const envSchema = z.object({
 type EnvVars = z.infer<typeof envSchema>
 
 const app = new Hono()
+
+// CORSミドルウェアを追加
+app.use('/*', cors({
+  origin: '*', // すべてのオリジンを許可（開発用）
+  allowHeaders: ['Content-Type', 'Authorization'],
+  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  exposeHeaders: ['Content-Length'],
+  maxAge: 86400,
+}))
 
 app.post('/', async (c) => {
   const { message } = await c.req.json();
