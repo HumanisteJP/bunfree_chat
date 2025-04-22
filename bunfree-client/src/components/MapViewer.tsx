@@ -162,7 +162,7 @@ const MapViewer: React.FC<MapViewerProps> = ({ boothResults, itemResults = [], o
         {booth.description && <p className="booth-description">{booth.description}</p>}
         {booth.url && (
           <button className="url-button" onClick={(e) => openBoothUrl(booth.url, e)}>
-            文フリのサイトへ移動
+            文フリのページへ移動
           </button>
         )}
       </div>
