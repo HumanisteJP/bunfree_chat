@@ -24,3 +24,8 @@ a {
   text-decoration: none;
   color: inherit;
 }
+
+button, a, div[role="button"], .booth-marker, .item-marker, .map-controls button, .close-button, .url-button {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
