@@ -334,11 +334,40 @@
   font-weight: bold;
 }
 
+/* PCでは👉を表示 */
+.support-text::after {
+  content: "👉";
+  margin-left: 5px;
+}
+
+/* モバイル用のメディアクエリ */
+@media (max-width: 768px) {
+  .kofi-container {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  /* モバイルでは👇を表示 */
+  .support-text::after {
+    content: "👇";
+  }
+}
+
 .kofi-button {
   transition: transform 0.2s ease;
 }
 
 .kofi-button:hover {
+  transform: translateY(-2px);
+}
+
+/* アニメーション付きKo-fiボタンのスタイル */
+.kofi-button-animated {
+  transition: transform 0.2s ease;
+}
+
+.kofi-button-animated:hover {
   transform: translateY(-2px);
 } 
 
