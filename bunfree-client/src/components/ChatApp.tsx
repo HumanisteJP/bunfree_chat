@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { LLMResponse } from '../types';
 import MapViewer from './MapViewer';
+import KofiButton from './KofiButton';
 import './ChatApp.css';
 // markdown-itをインポート
 import MarkdownIt from 'markdown-it';
@@ -271,6 +272,15 @@ const ChatApp = () => {
                       />
                     </>
                   )}
+                  
+                  {/* Ko-fiボタンの追加 */}
+                  {index === messages.length - 1 && msg.role === 'assistant' && !loading && messages.length >= 8 && (
+                    <div className="kofi-container">
+                      <p className="support-text">開発者を支援する👉</p>
+                      <KofiButton kofiId="C0C81AQPW8" />
+                    </div>
+                  )}
+                  
               </div>
             ))}
 

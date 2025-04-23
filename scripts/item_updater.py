@@ -106,9 +106,11 @@ class ItemUpdater:
         return self.cursor.fetchall()
     
     def fetch_existing_items_for_booth(self, booth_id):
-        """ブースのすべての既存アイテムのURLを取得"""
-        self.cursor.execute("SELECT page_url FROM items WHERE booth_id = ?", (booth_id,))
-        return [row['page_url'] for row in self.cursor.fetchall()]
+        """ブースのすべての既存アイテムのURLと名前を取得"""
+        self.cursor.execute("SELECT page_url, name FROM items WHERE booth_id = ?", (booth_id,))
+        results = self.cursor.fetchall()
+        # URL→名前のマッピングを辞書で返す
+        return {row['page_url']: row['name'] for row in results}
     
     def parse_item_page(self, url, booth_id):
         """商品ページの情報を解析"""
@@ -193,19 +195,41 @@ class ItemUpdater:
         return item_data
     
     def save_item(self, item_data):
-        """商品情報をデータベースに保存して、IDを返す"""
-        self.cursor.execute('''
-            INSERT OR REPLACE INTO items 
-            (booth_id, name, yomi, genre, author, item_type, page_count, release_date, price, url, page_url, description)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (
-            item_data['booth_id'], item_data['name'], item_data['yomi'],
-            item_data['genre'], item_data['author'], item_data['item_type'],
-            item_data['page_count'], item_data['release_date'], item_data['price'],
-            item_data['item_url'], item_data['page_url'], item_data['description']
-        ))
-        self.conn.commit()
-        return self.cursor.lastrowid
+        """商品情報をデータベースに保存して、IDを返す。
+        戻り値は (item_id, is_new_item) のタプル。is_new_itemは新規追加ならTrue、更新ならFalse"""
+        # page_urlが一致するアイテムを検索
+        self.cursor.execute('SELECT id FROM items WHERE page_url = ?', (item_data['page_url'],))
+        existing_item = self.cursor.fetchone()
+        
+        if existing_item:
+            # 既存アイテムがある場合は更新
+            self.cursor.execute('''
+                UPDATE items SET
+                booth_id = ?, name = ?, yomi = ?, genre = ?, author = ?, item_type = ?,
+                page_count = ?, release_date = ?, price = ?, url = ?, description = ?
+                WHERE id = ?
+            ''', (
+                item_data['booth_id'], item_data['name'], item_data['yomi'],
+                item_data['genre'], item_data['author'], item_data['item_type'],
+                item_data['page_count'], item_data['release_date'], item_data['price'],
+                item_data['item_url'], item_data['description'], existing_item['id']
+            ))
+            self.conn.commit()
+            return (existing_item['id'], False)  # 既存アイテムの更新
+        else:
+            # 新規アイテムの場合は挿入
+            self.cursor.execute('''
+                INSERT INTO items 
+                (booth_id, name, yomi, genre, author, item_type, page_count, release_date, price, url, page_url, description)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (
+                item_data['booth_id'], item_data['name'], item_data['yomi'],
+                item_data['genre'], item_data['author'], item_data['item_type'],
+                item_data['page_count'], item_data['release_date'], item_data['price'],
+                item_data['item_url'], item_data['page_url'], item_data['description']
+            ))
+            self.conn.commit()
+            return (self.cursor.lastrowid, True)  # 新規アイテムの追加
     
     def get_booth_details(self, booth_id):
         """ブースの詳細情報を取得"""
@@ -279,6 +303,11 @@ class ItemUpdater:
         new_items_total = 0
         error_count = 0
         
+        # すべての既存の商品URLを一度だけ取得
+        self.cursor.execute("SELECT page_url FROM items")
+        all_existing_urls = set(row[0] for row in self.cursor.fetchall())
+        print(f"現在のDBには{len(all_existing_urls)}件のアイテムURLが登録されています")
+        
         # プログレスバーの設定
         progress_bar = tqdm(total=len(booths), desc="ブース処理中")
         
@@ -298,11 +327,20 @@ class ItemUpdater:
                 # 現在の商品リンクを取得
                 current_item_links = self.get_item_links(soup)
                 
-                # 既存の商品URLを取得
-                existing_item_urls = self.fetch_existing_items_for_booth(booth_id)
+                # ブースの既存の商品URLと名前を取得（名前による重複チェック用）
+                existing_items = self.fetch_existing_items_for_booth(booth_id)
                 
-                # 新しい商品を特定
-                new_item_links = [url for url in current_item_links if url not in existing_item_urls]
+                # 新しい商品リンクの初期リスト
+                new_item_links = []
+                
+                # 各商品リンクを処理
+                for item_url in current_item_links:
+                    # 全体のURLリストで確認
+                    if item_url not in all_existing_urls:
+                        new_item_links.append(item_url)
+                        continue
+                    
+                    # 既に処理済みのURLなら次へ
                 
                 if new_item_links:
                     print(f"\nブースID={booth_id}に{len(new_item_links)}件の新しいアイテムを発見:")
@@ -316,32 +354,40 @@ class ItemUpdater:
                                 error_count += 1
                                 continue
                             
-                            # データベースに保存
-                            item_id = self.save_item(item_data)
-                            print(f"  + アイテム「{item_data['name']}」をDBに保存しました")
-                            
-                            # ベクトル埋め込みの生成
-                            vector = self.generate_item_embedding(item_data)
-                            if not vector:
-                                print(f"  - ベクトル生成に失敗: {item_url}")
-                                error_count += 1
+                            # 名前による二重チェック - 同じ商品名があれば処理しない
+                            item_name = item_data['name']
+                            if item_name and item_name in existing_items.values():
+                                print(f"  - 同名の商品が既に存在します: 「{item_name}」")
                                 continue
                             
-                            # Qdrantにアップロード
-                            if self.upload_item_to_qdrant(item_id, item_data, vector):
-                                print(f"  + アイテム「{item_data['name']}」をQdrantに追加しました")
-                                new_items_total += 1
-                            else:
-                                print(f"  - Qdrantへのアップロードに失敗: {item_url}")
-                                error_count += 1
+                            # データベースに保存
+                            item_id, is_new_item = self.save_item(item_data)
                             
-                            # レート制限を回避するため少し待機
-                            time.sleep(0.5)
+                            print(f"  + アイテム「{item_data['name']}」をDBに{('追加' if is_new_item else '更新')}しました")
+                            
+                            # 新規アイテムの場合のみ埋め込みとQdrantアップロードを実行
+                            if is_new_item:
+                                # ベクトル埋め込みの生成
+                                vector = self.generate_item_embedding(item_data)
+                                if not vector:
+                                    print(f"  - ベクトル生成に失敗: {item_url}")
+                                    error_count += 1
+                                    continue
+                                
+                                # Qdrantにアップロード
+                                if self.upload_item_to_qdrant(item_id, item_data, vector):
+                                    print(f"  + アイテム「{item_data['name']}」をQdrantに追加しました")
+                                    new_items_total += 1
+                                else:
+                                    print(f"  - Qdrantへのアップロードに失敗: {item_url}")
+                                    error_count += 1
+                            else:
+                                print(f"  * アイテム「{item_data['name']}」は既存アイテムの更新のため、ベクトル処理はスキップします")
                             
                         except Exception as e:
                             print(f"  - アイテム処理でエラー: {item_url} - {e}")
                             error_count += 1
-                
+
             except Exception as e:
                 print(f"ブース処理でエラー: ID={booth_id} - {e}")
                 error_count += 1

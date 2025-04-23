@@ -312,5 +312,33 @@
   pointer-events: none; /* クリックできないように */
   opacity: 0; /* 非表示 */
   margin-bottom: 60px; /* 入力フォームとの間隔を確保 */
+}
+
+/* Ko-fiボタンのスタイル */
+.kofi-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: 15px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  gap: 10px;
+}
+
+.support-text {
+  font-size: 1rem;
+  margin: 0;
+  color: #333;
+  font-weight: 500;
+  font-weight: bold;
+}
+
+.kofi-button {
+  transition: transform 0.2s ease;
+}
+
+.kofi-button:hover {
+  transform: translateY(-2px);
 } 
 
