@@ -42,9 +42,6 @@ pip3 install cloudscraper bs4 tqdm qdrant-client voyageai python-dotenv
 ## 3. バックアップ設定とデータ転送
 
 ```bash
-# データディレクトリの作成
-mkdir -p data
-
 # ローカルから既存のbunfree.dbをアップロード（別のターミナルで実行）
 gcloud compute scp bunfree.db item-updater-vm:~/bunfree_chat/bunfree.db --zone=asia-northeast1-a
 
