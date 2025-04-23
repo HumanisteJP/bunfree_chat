@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { LLMResponse } from '../types';
 import MapViewer from './MapViewer';
-import KofiButton from './KofiButton';
 import KofiButtonAnimated from './KofiButtonAnimated';
 import './ChatApp.css';
 // markdown-itをインポート
