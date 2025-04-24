@@ -1,6 +1,7 @@
 .favorite-page {
   display: flex;
   flex-direction: column;
+  align-items: center;
   height: 100%;
   width: 100%;
   margin: 0;
@@ -25,60 +26,51 @@
   }
 }
 
-.favorite-header {
-  display: flex;
-  align-items: center;
-  position: relative;
-  flex-shrink: 0;
+/* ヘッダーラッパーを追加 */
+.header-wrapper {
   width: 100%;
   max-width: 800px;
-  margin: 0 auto 20px;
-  padding: 24px 20px;
+  margin: 0 auto;
+}
+
+/* ヘッダースタイルは共通コンポーネントに移動したため削除 */
+/* .favorite-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px;
+  background-color: white;
   border-bottom: 1px solid #e0e0e0;
-  justify-content: center;
-  min-height: 72px; /* 最小高さを設定 */
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .favorite-header h1 {
-  position: absolute;
-  left: 0;
-  right: 0;
-  text-align: center;
   margin: 0;
   font-size: 1.5rem;
-  color: #4a4a4a;
-  line-height: 1.5;
+  text-align: center;
+  flex-grow: 1;
 }
 
 .back-button {
-  position: absolute;
-  left: 20px;
-  z-index: 1;
   display: flex;
   align-items: center;
-  color: #6e6e6e;
+  justify-content: center;
+  color: #333;
   text-decoration: none;
   padding: 8px;
-  border-radius: 50px;
+  border-radius: 50%;
   transition: background-color 0.2s;
-  width: 44px;
-  height: 44px;
-  justify-content: center;
 }
 
 .back-button:hover {
   background-color: rgba(0, 0, 0, 0.05);
-  color: #333;
-}
-
-.back-button span {
-  margin-left: 4px;
 }
 
 .back-button-spacer {
-  width: 40px; /* 戻るボタンと同じくらいの幅 */
-  visibility: hidden;
-}
+  width: 24px;
+} */
 
 .favorite-icon {
   display: flex;

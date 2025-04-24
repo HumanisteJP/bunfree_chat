@@ -41,21 +41,27 @@
   padding-bottom: 80px;
 }
 
-.chat-header {
-  padding: 24px 20px;
-  border-bottom: 1px solid #eaeaea;
-  background-color: #fff;
-  text-align: center;
+/* ヘッダーラッパーを追加 */
+.header-wrapper {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* ヘッダースタイルは共通コンポーネントに移動したため削除 */
+/* .chat-header {
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
+  padding: 10px;
   position: relative;
+  border-bottom: 1px solid #e0e0e0;
 }
 
 .chat-header h1 {
   margin: 0;
   font-size: 1.5rem;
-  color: #4a4a4a;
+  text-align: center;
 }
 
 .clear-chat-button {
@@ -63,22 +69,22 @@
   right: 20px;
   background: none;
   border: none;
-  color: #666;
   cursor: pointer;
-  width: 44px;
-  height: 44px;
+  padding: 8px;
+  border-radius: 50%;
+  transition: background-color 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
-  transition: background-color 0.2s, color 0.2s, transform 0.2s;
 }
 
 .clear-chat-button:hover {
   background-color: rgba(0, 0, 0, 0.05);
-  color: #000;
-  transform: scale(1.05);
 }
+
+.clear-chat-button:active {
+  background-color: rgba(0, 0, 0, 0.1);
+} */
 
 .message-list {
   flex: 1;

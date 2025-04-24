@@ -10,6 +10,8 @@ import MarkdownIt from 'markdown-it';
 import { SendIcon, Trash2Icon, BookHeart, Heart } from 'lucide-react';
 // データベース関連のインポート
 import { getAllMessagesChronological, saveMessage, clearAllMessages } from '../db/db';
+// ヘッダーコンポーネントをインポート
+import HeaderComponent from './HeaderComponent';
 
 // マークダウンパーサーを初期化
 const md = new MarkdownIt({
@@ -285,27 +287,27 @@ const ChatApp = () => {
     <div className={styles["chat-app"]}>
       <div className={styles["chat-container"]}>
         <div className={styles["chat-container-inner"]}>
-          <div className={styles["chat-header"]}>
-            <button
-              className={styles["clear-chat-button"]}
-              style={{ left: "20px", right: "auto" }}
-              onClick={navigateToFavorites}
-              aria-label="お気に入りを表示"
-              title="お気に入りを表示"
-            >
-              <BookHeart size={24} />
-            </button>
-            <h1>BunfreeChat</h1>
-            {messages.length > 0 && (
-              <button 
-                className={styles["clear-chat-button"]} 
-                onClick={handleClearChat}
-                aria-label="チャット履歴を消去"
-                title="チャット履歴を消去"
-              >
-                <Trash2Icon size={24} />
-              </button>
-            )}
+          {/* ヘッダーをラッパーで囲む */}
+          <div className={styles["header-wrapper"]}>
+            <HeaderComponent
+              title="BunfreeChat"
+              leftButton={
+                {
+                  icon: <BookHeart size={24} />,
+                  onClick: navigateToFavorites,
+                  ariaLabel: "お気に入りを表示",
+                  title: "お気に入りを表示"
+                }
+              }
+              rightButton={
+                messages.length > 0 ? {
+                  icon: <Trash2Icon size={24} />,
+                  onClick: handleClearChat,
+                  ariaLabel: "チャット履歴を消去",
+                  title: "チャット履歴を消去"
+                } : undefined
+              }
+            />
           </div>
           <div className={styles["message-list"]}>
             {messages.length === 0 && (
