@@ -17,6 +17,7 @@
   cursor: pointer;
   z-index: 10;
   transition: transform 0.2s, background-color 0.2s, box-shadow 0.2s;
+  transform-origin: center center;
 }
 
 .favorite-marker:hover {
@@ -24,6 +25,7 @@
   background-color: #ff3333;
   box-shadow: 0 0 0 3px rgba(255, 77, 77, 0.3);
   z-index: 11;
+  /* 中心を保持するためにtransformのみを使用し、margin調整を削除 */
 }
 
 .favorite-marker.selected {
@@ -36,6 +38,7 @@
   transform: scale(1);
   z-index: 20;
   box-shadow: 0 0 0 3px rgba(255, 77, 77, 0.5);
+  cursor: pointer;
 }
 
 /* マーカーラベルのスタイル - 常に表示 */

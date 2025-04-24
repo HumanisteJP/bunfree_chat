@@ -291,6 +291,7 @@
 .selected-booth-detail {
   grid-column: 1 / -1;
   width: 100%;
+  cursor: default;
 }
 
 .booth-detail-header {
