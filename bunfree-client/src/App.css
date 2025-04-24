@@ -16,4 +16,15 @@ body, html {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  position: relative;
+}
+
+/* ページ遷移アニメーション */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.app > div {
+  animation: fadeIn 0.25s ease-in;
 } 

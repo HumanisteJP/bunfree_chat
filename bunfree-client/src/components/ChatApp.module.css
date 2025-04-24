@@ -9,6 +9,16 @@
   background-color: #fff;
   overflow-y: auto;
   position: relative;
+  animation: chatFadeIn 0.3s ease-in-out;
+}
+
+@keyframes chatFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .chat-container {
