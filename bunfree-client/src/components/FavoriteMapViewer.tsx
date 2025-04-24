@@ -26,6 +26,14 @@ const FavoriteMapViewer: React.FC<FavoriteMapViewerProps> = ({ favoriteBooths, o
     // イベントの伝播を止める（マップクリックのイベントを発火させない）
     event.stopPropagation();
     
+    // 同じブースを再度クリックした場合は選択を解除
+    if (selectedBooth && selectedBooth.id === booth.id) {
+      if (onBoothClick) {
+        onBoothClick(null);
+      }
+      return;
+    }
+    
     // 親コンポーネントにブース情報を渡す
     if (onBoothClick) {
       onBoothClick(booth);

@@ -30,7 +30,13 @@ const FavoritePage: React.FC = () => {
   // ブースがクリックされたときの処理
   const handleBoothClick = (booth: any) => {
     console.log('選択されたブース:', booth); // デバッグ用
-    setSelectedBooth(booth);
+    
+    // 既に選択されているブースが再クリックされた場合は選択解除
+    if (selectedBooth && booth && selectedBooth.id === booth.id) {
+      setSelectedBooth(null);
+    } else {
+      setSelectedBooth(booth);
+    }
   };
 
   // お気に入りから削除する処理
