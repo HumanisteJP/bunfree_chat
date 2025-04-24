@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import ChatApp from './components/ChatApp';
 import FavoritePage from './components/FavoritePage';
-import PWAInstallPrompt from './components/PWAInstallPrompt';
+// import PWAInstallPrompt from './components/PWAInstallPrompt';
 import './App.css';
 
 function App() {
@@ -12,7 +12,7 @@ function App() {
           <Route path="/" element={<ChatApp />} />
           <Route path="/favorites" element={<FavoritePage />} />
         </Routes>
-        <PWAInstallPrompt />
+        {/* <PWAInstallPrompt /> */}
       </div>
     </Router>
   );
