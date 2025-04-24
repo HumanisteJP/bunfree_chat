@@ -293,7 +293,7 @@ const ChatApp = () => {
               aria-label="お気に入りを表示"
               title="お気に入りを表示"
             >
-              <BookHeart size={16} />
+              <BookHeart size={24} />
             </button>
             <h1>BunfreeChat</h1>
             {messages.length > 0 && (
@@ -303,7 +303,7 @@ const ChatApp = () => {
                 aria-label="チャット履歴を消去"
                 title="チャット履歴を消去"
               >
-                <Trash2Icon size={16} />
+                <Trash2Icon size={24} />
               </button>
             )}
           </div>

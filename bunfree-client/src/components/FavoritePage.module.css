@@ -4,7 +4,7 @@
   height: 100%;
   width: 100%;
   margin: 0;
-  padding: 20px;
+  padding: 0px 20px;
   overflow: auto;
   position: absolute;
   top: 0;
@@ -33,10 +33,10 @@
   width: 100%;
   max-width: 800px;
   margin: 0 auto 20px;
-  padding: 16px 20px;
+  padding: 24px 20px;
   border-bottom: 1px solid #e0e0e0;
   justify-content: center;
-  height: 60px;
+  min-height: 72px; /* 最小高さを設定 */
 }
 
 .favorite-header h1 {
@@ -47,6 +47,7 @@
   margin: 0;
   font-size: 1.5rem;
   color: #4a4a4a;
+  line-height: 1.5;
 }
 
 .back-button {
@@ -60,8 +61,8 @@
   padding: 8px;
   border-radius: 50px;
   transition: background-color 0.2s;
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   justify-content: center;
 }
 
