@@ -338,7 +338,7 @@ const ChatApp = () => {
                       {/* お気に入りページへの誘導 */}
                       <div className={styles["favorite-link-container"]} onClick={navigateToFavorites}>
                         <div className={styles["favorite-link"]}>
-                          <Heart size={16} className={styles["favorite-link-icon"]} fill="#ff4d4d" />
+                          <Heart size={20} className={styles["favorite-link-icon"]} fill="#ff4d4d" />
                           <span>気に入ったブースは「お気に入り」に追加できます！お気に入りページでまとめて確認できます</span>
                         </div>
                       </div>
