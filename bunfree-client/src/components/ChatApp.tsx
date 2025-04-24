@@ -90,7 +90,7 @@ const ChatApp = () => {
     "イケてるプロジェクトを育てる水やり",
     "天才のひらめきに一票入れる",
     "クリエイターの背中を押す千円札",
-    "ゲーム開発者に『続きをどうぞ』のコイン",
+    "開発者に『CONTINUE』のコイン",
     "アップデートの神様にお賽銭",
     "あなたの千円で世界が変わる、マジで！",
     "新機能追加の魔法の呪文",
@@ -99,9 +99,17 @@ const ChatApp = () => {
     "あなたの応援が最強のデバッガー！"
   ];
 
+  // Ko-fiボタンの色の配列
+  const kofiColors = ['#FF6433', '#202020', '#E3D6C6', '#FFDA6E', '#C19BFF'];
+
   // ランダムなサポートフレーズを選択
   const randomSupportPhrase = useMemo(() => {
     return supportPhrases[Math.floor(Math.random() * supportPhrases.length)];
+  }, [messages]);
+
+  // ランダムなKo-fi色を選択
+  const randomKofiColor = useMemo(() => {
+    return kofiColors[Math.floor(Math.random() * kofiColors.length)];
   }, [messages]);
 
   // お気に入りページへ遷移
@@ -338,10 +346,10 @@ const ChatApp = () => {
                   )}
                   
                   {/* Ko-fiボタンの追加 */}
-                  {index === messages.length - 1 && msg.role === 'assistant' && !loading && messages.length >= 6 && (
+                  {index === messages.length - 1 && msg.role === 'assistant' && !loading && messages.length >= 2 && (
                     <div className={styles["kofi-container"]}>
                       <p className={styles["support-text"]}>{randomSupportPhrase}</p>
-                      <KofiButtonAnimated kofiId="C0C81AQPW8" label="Support me on Ko-fi" color="#72a4f2" />
+                      <KofiButtonAnimated kofiId="C0C81AQPW8" label="Support me on Ko-fi" color={randomKofiColor} />
                     </div>
                   )}
                   
