@@ -7,7 +7,7 @@ import styles from './ChatApp.module.css';
 // markdown-itをインポート
 import MarkdownIt from 'markdown-it';
 // lucide-reactから必要なアイコンをインポート
-import { SendIcon, Trash2Icon, BookHeart, Heart, MapPin } from 'lucide-react';
+import { SendIcon, Trash2Icon, BookHeart, Heart } from 'lucide-react';
 // データベース関連のインポート
 import { getAllMessagesChronological, saveMessage, clearAllMessages } from '../db/db';
 
