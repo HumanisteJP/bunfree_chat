@@ -1,5 +1,5 @@
 import React from 'react';
-import './KofiButtonAnimated.css';
+import styles from './KofiButtonAnimated.module.css';
 
 interface KofiButtonAnimatedProps {
   kofiId: string;
@@ -13,20 +13,20 @@ const KofiButtonAnimated: React.FC<KofiButtonAnimatedProps> = ({
   color = '#72a4f2'
 }) => {
   return (
-    <div className="kofi-btn-container">
+    <div className={styles["kofi-btn-container"]}>
       <a 
         title="Support me on ko-fi.com" 
-        className="kofi-button" 
+        className={styles["kofi-button"]} 
         style={{backgroundColor: color}} 
         href={`https://ko-fi.com/${kofiId}`} 
         target="_blank"
         rel="noopener noreferrer"
       >
-        <span className="kofitext">
+        <span className={styles.kofitext}>
           <img 
             src="https://storage.ko-fi.com/cdn/cup-border.png" 
             alt="Ko-fi donations" 
-            className="kofiimg"
+            className={styles.kofiimg}
           />
           {label}
         </span>

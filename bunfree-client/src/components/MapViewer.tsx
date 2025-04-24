@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { BoothResult, ItemResult } from '../types';
 import { Heart } from 'lucide-react';
 import { addFavoriteBooth, removeFavoriteBooth, isFavoriteBooth } from '../db/db';
-import './MapViewer.css';
+import styles from './MapViewer.module.css';
 
 interface MapViewerProps {
   boothResults: BoothResult[];
@@ -237,14 +237,14 @@ const MapViewer: React.FC<MapViewerProps> = ({ boothResults, itemResults = [], o
     const isFavorite = favoriteBooths[booth.id] || false;
     
     return (
-      <div className={`booth-detail ${isClosing ? 'closing' : ''}`} onClick={handleDetailClick}>
-        <div className="booth-detail-header">
-          <button className="close-button" onClick={handleCloseDetail}>×</button>
+      <div className={`${styles["booth-detail"]} ${isClosing ? styles.closing : ''}`} onClick={handleDetailClick}>
+        <div className={styles["booth-detail-header"]}>
+          <button className={styles["close-button"]} onClick={handleCloseDetail}>×</button>
         </div>
-        <div className="booth-title-row">
+        <div className={styles["booth-title-row"]}>
           <h3>{booth.name}</h3>
           <button 
-            className={`favorite-button-map ${isFavorite ? 'is-favorite' : ''}`}
+            className={`${styles["favorite-button-map"]} ${isFavorite ? styles["is-favorite"] : ''}`}
             onClick={(e) => toggleFavorite(booth, e)}
             title={isFavorite ? "お気に入りから削除" : "お気に入りに追加"}
           >
@@ -252,9 +252,9 @@ const MapViewer: React.FC<MapViewerProps> = ({ boothResults, itemResults = [], o
           </button>
         </div>
         <p>{`${booth.area}-${booth.area_number}`}</p>
-        {booth.description && <p className="booth-description">{booth.description}</p>}
+        {booth.description && <p className={styles["booth-description"]}>{booth.description}</p>}
         {booth.url && (
-          <button className="url-button" onClick={(e) => openBoothUrl(booth.url, e)}>
+          <button className={styles["url-button"]} onClick={(e) => openBoothUrl(booth.url, e)}>
             文フリのページへ移動
           </button>
         )}
@@ -263,16 +263,16 @@ const MapViewer: React.FC<MapViewerProps> = ({ boothResults, itemResults = [], o
   };
 
   return (
-    <div className="map-viewer" ref={mapViewerRef}>
+    <div className={styles["map-viewer"]} ref={mapViewerRef}>
       <div 
-        className="map-container" 
+        className={styles["map-container"]} 
         ref={mapContainerRef}
         onClick={handleMapClick}
       >
         <img 
           src={`/map_${mapNumber}.webp`} 
           alt={`会場マップ ${mapNumber}`} 
-          className="map-image" 
+          className={styles["map-image"]} 
         />
         
         {/* ブースのマーカーを表示 */}
@@ -283,7 +283,7 @@ const MapViewer: React.FC<MapViewerProps> = ({ boothResults, itemResults = [], o
           return (
             <div 
               key={`booth-${booth.id}`}
-              className={`booth-marker ${isSelected ? 'selected' : ''} ${isClosingThis ? 'closing-marker' : ''}`}
+              className={`${styles["booth-marker"]} ${isSelected ? styles.selected : ''} ${isClosingThis ? styles["closing-marker"] : ''}`}
               style={{
                 top: `${booth.position_top * 100}%`,
                 left: `${booth.position_left * 100}%`
@@ -305,7 +305,7 @@ const MapViewer: React.FC<MapViewerProps> = ({ boothResults, itemResults = [], o
           return (
             <div 
               key={`item-booth-${booth.id}`}
-              className={`item-marker ${isSelected ? 'selected' : ''} ${isClosingThis ? 'closing-marker' : ''}`}
+              className={`${styles["item-marker"]} ${isSelected ? styles.selected : ''} ${isClosingThis ? styles["closing-marker"] : ''}`}
               style={{
                 top: `${booth.position_top * 100}%`,
                 left: `${booth.position_left * 100}%`
@@ -321,15 +321,15 @@ const MapViewer: React.FC<MapViewerProps> = ({ boothResults, itemResults = [], o
       </div>
 
       {/* 地図切り替えボタン */}
-      <div className="map-controls">
+      <div className={styles["map-controls"]}>
         <button 
-          className={mapNumber === 1 ? "active" : ""} 
+          className={mapNumber === 1 ? styles.active : ""} 
           onClick={() => setMapNumber(1)}
         >
           地図１（南１・２ホール）
         </button>
         <button 
-          className={mapNumber === 2 ? "active" : ""} 
+          className={mapNumber === 2 ? styles.active : ""} 
           onClick={() => setMapNumber(2)}
         >
           地図２（南３・４ホール）

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { LLMResponse } from '../types';
 import MapViewer from './MapViewer';
 import KofiButtonAnimated from './KofiButtonAnimated';
-import './ChatApp.css';
+import styles from './ChatApp.module.css';
 // markdown-itをインポート
 import MarkdownIt from 'markdown-it';
 // lucide-reactから必要なアイコンをインポート
@@ -274,12 +274,12 @@ const ChatApp = () => {
   };
 
   return (
-    <div className="chat-app">
-      <div className="chat-container">
-        <div className="chat-container-inner">
-          <div className="chat-header">
+    <div className={styles["chat-app"]}>
+      <div className={styles["chat-container"]}>
+        <div className={styles["chat-container-inner"]}>
+          <div className={styles["chat-header"]}>
             <button
-              className="clear-chat-button"
+              className={styles["clear-chat-button"]}
               style={{ left: "20px", right: "auto" }}
               onClick={navigateToFavorites}
               aria-label="お気に入りを表示"
@@ -290,7 +290,7 @@ const ChatApp = () => {
             <h1>BunfreeChat</h1>
             {messages.length > 0 && (
               <button 
-                className="clear-chat-button" 
+                className={styles["clear-chat-button"]} 
                 onClick={handleClearChat}
                 aria-label="チャット履歴を消去"
                 title="チャット履歴を消去"
@@ -299,16 +299,16 @@ const ChatApp = () => {
               </button>
             )}
           </div>
-          <div className="message-list">
+          <div className={styles["message-list"]}>
             {messages.length === 0 && (
-              <div className="empty-state">
+              <div className={styles["empty-state"]}>
                 {randomExample}
               </div>
             )}
 
             {messages.map((msg, index) => (
-              <div key={index} className={`message ${msg.role}`}>
-                <div className="message-content">
+              <div key={index} className={`${styles.message} ${styles[msg.role]}`}>
+                <div className={styles["message-content"]}>
                   {msg.role === 'assistant' ? (
                     <div dangerouslySetInnerHTML={{ __html: md.render(msg.content) }} />
                   ) : (
@@ -321,7 +321,7 @@ const ChatApp = () => {
                   ((msg.llmResponse.boothResults && msg.llmResponse.boothResults.length > 0) ||
                     (msg.llmResponse.itemResults && msg.llmResponse.itemResults.length > 0)) && (
                     <>
-                      <div className="map-label">ブースの場所を地図で表示しています↓</div>
+                      <div className={styles["map-label"]}>ブースの場所を地図で表示しています↓</div>
                       <MapViewer
                         boothResults={msg.llmResponse.boothResults || []}
                         itemResults={msg.llmResponse.itemResults || []}
@@ -331,8 +331,8 @@ const ChatApp = () => {
                   
                   {/* Ko-fiボタンの追加 */}
                   {index === messages.length - 1 && msg.role === 'assistant' && !loading && messages.length >= 6 && (
-                    <div className="kofi-container">
-                      <p className="support-text">{randomSupportPhrase}</p>
+                    <div className={styles["kofi-container"]}>
+                      <p className={styles["support-text"]}>{randomSupportPhrase}</p>
                       <KofiButtonAnimated kofiId="C0C81AQPW8" label="Support me on Ko-fi" color="#72a4f2" />
                     </div>
                   )}
@@ -342,20 +342,20 @@ const ChatApp = () => {
 
             {/* ローディングインジケータ */}
             {loading && (
-              <div className="message assistant">
-                <div className="loading-indicator">
-                  <div className="dot"></div>
-                  <div className="dot"></div>
-                  <div className="dot"></div>
+              <div className={`${styles.message} ${styles.assistant}`}>
+                <div className={styles["loading-indicator"]}>
+                  <div className={styles.dot}></div>
+                  <div className={styles.dot}></div>
+                  <div className={styles.dot}></div>
                 </div>
               </div>
             )}
 
             {/* スクロール用の参照ポイント - 常に表示 */}
-            <div ref={messageEndRef} className="scroll-marker" />
+            <div ref={messageEndRef} className={styles["scroll-marker"]} />
           </div>
         </div>
-        <form className="input-form" onSubmit={handleSubmit}>
+        <form className={styles["input-form"]} onSubmit={handleSubmit}>
           <input
             type="text"
             value={input}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import './MapViewer.css';
-import './FavoriteMapViewer.css';
+import mapStyles from './MapViewer.module.css';
+import styles from './FavoriteMapViewer.module.css';
 
 interface FavoriteMapViewerProps {
   favoriteBooths: any[];
@@ -81,16 +81,16 @@ const FavoriteMapViewer: React.FC<FavoriteMapViewerProps> = ({ favoriteBooths, o
   }, [favoriteBooths, mapNumber]);
 
   return (
-    <div className="map-viewer favorite-map-viewer" ref={mapViewerRef}>
+    <div className={`${mapStyles["map-viewer"]} ${styles["favorite-map-viewer"]}`} ref={mapViewerRef}>
       <div 
-        className="map-container" 
+        className={mapStyles["map-container"]} 
         ref={mapContainerRef}
         onClick={handleMapClick}
       >
         <img 
           src={`/map_${mapNumber}.webp`} 
           alt={`会場マップ ${mapNumber}`} 
-          className="map-image" 
+          className={mapStyles["map-image"]} 
         />
         
         {/* お気に入りブースのマーカーを表示 */}
@@ -100,7 +100,7 @@ const FavoriteMapViewer: React.FC<FavoriteMapViewerProps> = ({ favoriteBooths, o
           return (
             <div 
               key={`fav-booth-${booth.id}`}
-              className={`favorite-marker ${isSelected ? 'selected' : ''}`}
+              className={`${styles["favorite-marker"]} ${isSelected ? styles.selected : ''}`}
               style={{
                 top: `${booth.position_top * 100}%`,
                 left: `${booth.position_left * 100}%`
@@ -109,7 +109,7 @@ const FavoriteMapViewer: React.FC<FavoriteMapViewerProps> = ({ favoriteBooths, o
               title={`${booth.area}-${booth.area_number}: ${booth.name}`}
             >
               {(selectedBooth === null || isSelected) && (
-                <div className="favorite-marker-label">
+                <div className={styles["favorite-marker-label"]}>
                   {booth.name}
                 </div>
               )}
@@ -119,15 +119,15 @@ const FavoriteMapViewer: React.FC<FavoriteMapViewerProps> = ({ favoriteBooths, o
       </div>
 
       {/* 地図切り替えボタン */}
-      <div className="map-controls">
+      <div className={mapStyles["map-controls"]}>
         <button 
-          className={mapNumber === 1 ? "active" : ""} 
+          className={mapNumber === 1 ? mapStyles.active : ""} 
           onClick={() => setMapNumber(1)}
         >
           地図１（南１・２ホール）
         </button>
         <button 
-          className={mapNumber === 2 ? "active" : ""} 
+          className={mapNumber === 2 ? mapStyles.active : ""} 
           onClick={() => setMapNumber(2)}
         >
           地図２（南３・４ホール）

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Heart, ChevronLeft, ExternalLink, ShoppingBag } from 'lucide-react';
 import FavoriteMapViewer from './FavoriteMapViewer';
 import { getAllFavoriteBooths, removeFavoriteBooth } from '../db/db';
-import './FavoritePage.css';
+import styles from './FavoritePage.module.css';
 
 const FavoritePage: React.FC = () => {
   const [favoriteBooths, setFavoriteBooths] = useState<any[]>([]);
@@ -71,27 +71,27 @@ const FavoritePage: React.FC = () => {
   };
 
   return (
-    <div className="favorite-page">
-      <div className="favorite-header">
-        <Link to="/" className="back-button">
+    <div className={styles["favorite-page"]}>
+      <div className={styles["favorite-header"]}>
+        <Link to="/" className={styles["back-button"]}>
           <ChevronLeft size={24} />
         </Link>
         <h1>Favorite Booths</h1>
-        <div className="back-button-spacer"></div>
+        <div className={styles["back-button-spacer"]}></div>
       </div>
 
       {loading ? (
-        <div className="loading-container">
+        <div className={styles["loading-container"]}>
           <p>お気に入り情報を読み込み中...</p>
         </div>
       ) : favoriteBooths.length === 0 ? (
-        <div className="empty-favorites">
+        <div className={styles["empty-favorites"]}>
           <p>お気に入りに登録されたブースはありません。</p>
           <p>チャットでブースを検索して、ハートマークをクリックするとお気に入りに追加できます。</p>
         </div>
       ) : (
         <>
-          <div className="favorite-map-section">
+          <div className={styles["favorite-map-section"]}>
             <FavoriteMapViewer 
               favoriteBooths={favoriteBooths} 
               onBoothClick={handleBoothClick}
@@ -100,16 +100,16 @@ const FavoritePage: React.FC = () => {
           </div>
 
           {/* 選択したブースの詳細情報 */}
-          <div className="favorite-details-section">
+          <div className={styles["favorite-details-section"]}>
             <h2>選択したブースの詳細情報</h2>
             {selectedBooth ? (
-              <div className="favorite-list">
-                <div className="favorite-item selected-booth-detail">
-                  <div className="booth-info wide-info">
-                    <div className="booth-detail-header">
+              <div className={styles["favorite-list"]}>
+                <div className={`${styles["favorite-item"]} ${styles["selected-booth-detail"]}`}>
+                  <div className={`${styles["booth-info"]} ${styles["wide-info"]}`}>
+                    <div className={styles["booth-detail-header"]}>
                       <h3>{selectedBooth.name}</h3>
                       <button 
-                        className="remove-favorite" 
+                        className={styles["remove-favorite"]} 
                         onClick={handleRemoveSelectedFavorite}
                         aria-label="お気に入りから削除"
                       >
@@ -117,47 +117,47 @@ const FavoritePage: React.FC = () => {
                       </button>
                     </div>
                     
-                    <p className="booth-location">{selectedBooth.area}-{selectedBooth.area_number}</p>
+                    <p className={styles["booth-location"]}>{selectedBooth.area}-{selectedBooth.area_number}</p>
                     
                     {selectedBooth.description && (
-                      <div className="booth-detail-section">
-                        <p className="section-label">説明:</p>
-                        <p className="booth-description-full">{selectedBooth.description}</p>
+                      <div className={styles["booth-detail-section"]}>
+                        <p className={styles["section-label"]}>説明:</p>
+                        <p className={styles["booth-description-full"]}>{selectedBooth.description}</p>
                       </div>
                     )}
                     
                     {selectedBooth.items && selectedBooth.items.length > 0 ? (
-                      <div className="booth-detail-section">
-                        <p className="section-label">販売商品:</p>
-                        <div className="items-list">
+                      <div className={styles["booth-detail-section"]}>
+                        <p className={styles["section-label"]}>販売商品:</p>
+                        <div className={styles["items-list"]}>
                           {selectedBooth.items.map((item: any) => (
-                            <div className="item-card" key={item.id}>
-                              <div className="item-header">
+                            <div className={styles["item-card"]} key={item.id}>
+                              <div className={styles["item-header"]}>
                                 <ShoppingBag size={14} />
-                                <span className="item-name">{item.name}</span>
+                                <span className={styles["item-name"]}>{item.name}</span>
                               </div>
-                              <div className="item-details">
+                              <div className={styles["item-details"]}>
                                 <p><span>ジャンル:</span> {item.genre}</p>
                                 <p><span>著者:</span> {item.author}</p>
                                 <p><span>形式:</span> {item.item_type}</p>
                                 {item.page_count > 0 && <p><span>ページ数:</span> {item.page_count}ページ</p>}
                                 {item.price > 0 && <p><span>価格:</span> {formatPrice(item.price)}</p>}
-                                {item.description && <p className="item-description"><span>説明:</span> {item.description}</p>}
+                                {item.description && <p className={styles["item-description"]}><span>説明:</span> {item.description}</p>}
                               </div>
                             </div>
                           ))}
                         </div>
                       </div>
                     ) : (
-                      <div className="booth-detail-section">
-                        <p className="section-label">販売商品:</p>
-                        <p className="no-items-message">登録されている商品情報はありません。</p>
+                      <div className={styles["booth-detail-section"]}>
+                        <p className={styles["section-label"]}>販売商品:</p>
+                        <p className={styles["no-items-message"]}>登録されている商品情報はありません。</p>
                       </div>
                     )}
                     
                     {selectedBooth.url && (
-                      <div className="booth-detail-section">
-                        <button className="booth-url-button" onClick={() => openBoothUrl(selectedBooth.url)}>
+                      <div className={styles["booth-detail-section"]}>
+                        <button className={styles["booth-url-button"]} onClick={() => openBoothUrl(selectedBooth.url)}>
                           <ExternalLink size={18} />
                           <span>文フリのページへ移動</span>
                         </button>
@@ -167,30 +167,30 @@ const FavoritePage: React.FC = () => {
                 </div>
               </div>
             ) : (
-              <div className="placeholder-message">
+              <div className={styles["placeholder-message"]}>
                 <p>ブースを選択すると、詳細情報がここに表示されます</p>
               </div>
             )}
           </div>
 
-          <div className="favorite-details-section">
+          <div className={styles["favorite-details-section"]}>
             <h2>お気に入りブース一覧</h2>
-            <div className="favorite-list">
+            <div className={styles["favorite-list"]}>
               {favoriteBooths.map(item => (
                 <div 
                   key={item.boothId} 
-                  className={`favorite-item ${selectedBooth && selectedBooth.id === item.boothData.id ? 'selected' : ''}`}
+                  className={`${styles["favorite-item"]} ${selectedBooth && selectedBooth.id === item.boothData.id ? styles.selected : ''}`}
                   onClick={() => handleBoothClick(item.boothData)}
                 >
-                  <div className="booth-info">
+                  <div className={styles["booth-info"]}>
                     <h3>{item.boothData.name}</h3>
-                    <p className="booth-location">{item.boothData.area}-{item.boothData.area_number}</p>
+                    <p className={styles["booth-location"]}>{item.boothData.area}-{item.boothData.area_number}</p>
                     {item.boothData.description && (
-                      <p className="booth-description">{item.boothData.description}</p>
+                      <p className={styles["booth-description"]}>{item.boothData.description}</p>
                     )}
                   </div>
                   <button 
-                    className="remove-favorite" 
+                    className={styles["remove-favorite"]} 
                     onClick={(e) => {
                       e.stopPropagation();
                       handleRemoveFavorite(item.boothId);
