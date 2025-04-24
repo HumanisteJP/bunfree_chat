@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, ChevronLeft, ExternalLink, ShoppingBag } from 'lucide-react';
+import { Heart, ChevronLeft } from 'lucide-react';
 import FavoriteMapViewer from './FavoriteMapViewer';
 import { getAllFavoriteBooths, removeFavoriteBooth } from '../db/db';
 import styles from './FavoritePage.module.css';
@@ -57,24 +57,24 @@ const FavoritePage: React.FC = () => {
     }
   };
 
-  // URLを開く処理
-  const openBoothUrl = (url: string) => {
-    if (url) {
-      window.open(url, '_blank');
-    }
-  };
+  // // URLを開く処理
+  // const openBoothUrl = (url: string) => {
+  //   if (url) {
+  //     window.open(url, '_blank');
+  //   }
+  // };
 
-  // 価格を日本円表示にフォーマット
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('ja-JP', { style: 'currency', currency: 'JPY' }).format(price);
-  };
+  // // 価格を日本円表示にフォーマット
+  // const formatPrice = (price: number) => {
+  //   return new Intl.NumberFormat('ja-JP', { style: 'currency', currency: 'JPY' }).format(price);
+  // };
 
-  // 選択されたブースに関連するハンドラー
-  const handleRemoveSelectedFavorite = () => {
-    if (selectedBooth) {
-      handleRemoveFavorite(selectedBooth.id);
-    }
-  };
+  // // 選択されたブースに関連するハンドラー
+  // const handleRemoveSelectedFavorite = () => {
+  //   if (selectedBooth) {
+  //     handleRemoveFavorite(selectedBooth.id);
+  //   }
+  // };
 
   return (
     <div className={styles["favorite-page"]}>
@@ -106,7 +106,7 @@ const FavoritePage: React.FC = () => {
           </div>
 
           {/* 選択したブースの詳細情報 */}
-          <div className={styles["favorite-details-section"]}>
+          {/* <div className={styles["favorite-details-section"]}>
             <h2>選択したブースの詳細情報</h2>
             {selectedBooth ? (
               <div className={styles["favorite-list"]}>
@@ -177,7 +177,7 @@ const FavoritePage: React.FC = () => {
                 <p>ブースを選択すると、詳細情報がここに表示されます</p>
               </div>
             )}
-          </div>
+          </div> */}
 
           <div className={styles["favorite-details-section"]}>
             <h2>お気に入りブース一覧</h2>
