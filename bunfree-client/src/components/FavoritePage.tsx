@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, ChevronLeft } from 'lucide-react';
+import { Heart, ChevronLeft, ExternalLink } from 'lucide-react';
 import FavoriteMapViewer from './FavoriteMapViewer';
 import { getAllFavoriteBooths, removeFavoriteBooth } from '../db/db';
 import styles from './FavoritePage.module.css';
@@ -57,12 +57,12 @@ const FavoritePage: React.FC = () => {
     }
   };
 
-  // // URLを開く処理
-  // const openBoothUrl = (url: string) => {
-  //   if (url) {
-  //     window.open(url, '_blank');
-  //   }
-  // };
+  // URLを開く処理
+  const openBoothUrl = (url: string) => {
+    if (url) {
+      window.open(url, '_blank');
+    }
+  };
 
   // // 価格を日本円表示にフォーマット
   // const formatPrice = (price: number) => {
@@ -188,23 +188,39 @@ const FavoritePage: React.FC = () => {
                   className={`${styles["favorite-item"]} ${selectedBooth && selectedBooth.id === item.boothData.id ? styles.selected : ''}`}
                   onClick={() => handleBoothClick(item.boothData)}
                 >
-                  <div className={styles["booth-info"]}>
-                    <h3>{item.boothData.name}</h3>
-                    <p className={styles["booth-location"]}>{item.boothData.area}-{item.boothData.area_number}</p>
-                    {item.boothData.description && (
-                      <p className={styles["booth-description"]}>{item.boothData.description}</p>
+                  <div className={styles["booth-container"]}>
+                    <div className={styles["booth-info"]}>
+                      <h3>{item.boothData.name}</h3>
+                      <p className={styles["booth-location"]}>{item.boothData.area}-{item.boothData.area_number}</p>
+                      {item.boothData.description && (
+                        <p className={styles["booth-description"]}>{item.boothData.description}</p>
+                      )}
+                    </div>
+                    <button 
+                      className={styles["remove-favorite"]} 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemoveFavorite(item.boothId);
+                      }}
+                      aria-label="お気に入りから削除"
+                    >
+                      <Heart size={20} fill="#ff4d4d" color="#ff4d4d" />
+                    </button>
+                  </div>
+                  <div className={styles["booth-actions"]}>
+                    {item.boothData.url && (
+                      <button 
+                        className={styles["booth-url-button"]} 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openBoothUrl(item.boothData.url);
+                        }}
+                      >
+                        <ExternalLink size={16} />
+                        <span>文フリのページへ移動</span>
+                      </button>
                     )}
                   </div>
-                  <button 
-                    className={styles["remove-favorite"]} 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleRemoveFavorite(item.boothId);
-                    }}
-                    aria-label="お気に入りから削除"
-                  >
-                    <Heart size={20} fill="#ff4d4d" color="#ff4d4d" />
-                  </button>
                 </div>
               ))}
             </div>
