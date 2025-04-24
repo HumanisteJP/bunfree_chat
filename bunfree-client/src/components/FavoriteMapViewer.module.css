@@ -20,6 +20,18 @@
   transform-origin: center center;
 }
 
+/* タッチ領域を拡大するための透明な要素 */
+.favorite-marker::before {
+  content: '';
+  position: absolute;
+  width: 44px;
+  height: 44px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: -1;
+}
+
 .favorite-marker:hover {
   transform: scale(1.2);
   background-color: #ff3333;
