@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { LLMResponse } from '../types';
 import MapViewer from './MapViewer';
 import KofiButtonAnimated from './KofiButtonAnimated';
 import './ChatApp.css';
 // markdown-itをインポート
 import MarkdownIt from 'markdown-it';
-// lucide-reactから送信アイコンをインポート
-import { SendIcon, Trash2Icon } from 'lucide-react';
+// lucide-reactから必要なアイコンをインポート
+import { SendIcon, Trash2Icon, BookHeart } from 'lucide-react';
 // データベース関連のインポート
 import { getAllMessagesChronological, saveMessage, clearAllMessages } from '../db/db';
 
@@ -28,6 +29,7 @@ const ChatApp = () => {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const messageEndRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   // 質問例の配列を定義
   const genreExamples = [
@@ -101,6 +103,11 @@ const ChatApp = () => {
   const randomSupportPhrase = useMemo(() => {
     return supportPhrases[Math.floor(Math.random() * supportPhrases.length)];
   }, [messages]);
+
+  // お気に入りページへ遷移
+  const navigateToFavorites = () => {
+    navigate('/favorites');
+  };
 
   // 初期化時にIndexedDBからチャット履歴を読み込む
   useEffect(() => {
@@ -271,12 +278,22 @@ const ChatApp = () => {
       <div className="chat-container">
         <div className="chat-container-inner">
           <div className="chat-header">
+            <button
+              className="clear-chat-button"
+              style={{ left: "20px", right: "auto" }}
+              onClick={navigateToFavorites}
+              aria-label="お気に入りを表示"
+              title="お気に入りを表示"
+            >
+              <BookHeart size={16} />
+            </button>
             <h1>BunfreeChat</h1>
             {messages.length > 0 && (
               <button 
                 className="clear-chat-button" 
                 onClick={handleClearChat}
                 aria-label="チャット履歴を消去"
+                title="チャット履歴を消去"
               >
                 <Trash2Icon size={16} />
               </button>

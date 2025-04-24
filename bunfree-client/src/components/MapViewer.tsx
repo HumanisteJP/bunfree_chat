@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { BoothResult, ItemResult } from '../types';
+import { Heart } from 'lucide-react';
+import { addFavoriteBooth, removeFavoriteBooth, isFavoriteBooth } from '../db/db';
 import './MapViewer.css';
 
 interface MapViewerProps {
@@ -14,6 +16,7 @@ const MapViewer: React.FC<MapViewerProps> = ({ boothResults, itemResults = [], o
   const [filteredItemBooths, setFilteredItemBooths] = useState<any[]>([]);
   const [selectedBooth, setSelectedBooth] = useState<any>(null);
   const [closingBooth, setClosingBooth] = useState<any>(null);
+  const [favoriteBooths, setFavoriteBooths] = useState<Record<number, boolean>>({});
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapViewerRef = useRef<HTMLDivElement>(null);
 
@@ -81,6 +84,33 @@ const MapViewer: React.FC<MapViewerProps> = ({ boothResults, itemResults = [], o
     }
   };
 
+  // お気に入り追加・削除の切り替え処理
+  const toggleFavorite = async (booth: any, event: React.MouseEvent) => {
+    event.stopPropagation(); // イベントの伝播を止める
+    
+    try {
+      const isFavorite = favoriteBooths[booth.id];
+      
+      if (isFavorite) {
+        // お気に入りから削除
+        await removeFavoriteBooth(booth.id);
+        setFavoriteBooths(prev => ({
+          ...prev,
+          [booth.id]: false
+        }));
+      } else {
+        // お気に入りに追加
+        await addFavoriteBooth(booth);
+        setFavoriteBooths(prev => ({
+          ...prev,
+          [booth.id]: true
+        }));
+      }
+    } catch (error) {
+      console.error('お気に入り操作に失敗しました:', error);
+    }
+  };
+
   // マップがクリックされたときのハンドラー
   const handleMapClick = () => {
     // 詳細表示を閉じる
@@ -107,6 +137,41 @@ const MapViewer: React.FC<MapViewerProps> = ({ boothResults, itemResults = [], o
       };
     }
   }, [selectedBooth]); // selectedBoothが変更されたときに再実行
+
+  // お気に入りステータスの取得
+  useEffect(() => {
+    const checkFavoriteStatus = async () => {
+      const boothIds = new Set<number>();
+      
+      // ブースIDを収集
+      boothResults.forEach(booth => {
+        if (booth.payload.id) {
+          boothIds.add(booth.payload.id);
+        }
+      });
+      
+      // アイテム検索結果からのブースIDも収集
+      if (itemResults && itemResults.length > 0) {
+        itemResults.forEach(item => {
+          if (item.payload.booth_details?.id) {
+            boothIds.add(item.payload.booth_details.id);
+          }
+        });
+      }
+      
+      // 各ブースのお気に入りステータスを確認
+      const favoriteStatus: Record<number, boolean> = {};
+      
+      for (const boothId of boothIds) {
+        const isFavorite = await isFavoriteBooth(boothId);
+        favoriteStatus[boothId] = isFavorite;
+      }
+      
+      setFavoriteBooths(favoriteStatus);
+    };
+    
+    checkFavoriteStatus();
+  }, [boothResults, itemResults]);
 
   // デバッグ用：受け取ったブースデータをログに出力
   useEffect(() => {
@@ -169,10 +234,23 @@ const MapViewer: React.FC<MapViewerProps> = ({ boothResults, itemResults = [], o
 
   // ブースの詳細情報の表示
   const renderBoothDetail = (booth: any, isClosing: boolean) => {
+    const isFavorite = favoriteBooths[booth.id] || false;
+    
     return (
       <div className={`booth-detail ${isClosing ? 'closing' : ''}`} onClick={handleDetailClick}>
-        <button className="close-button" onClick={handleCloseDetail}>×</button>
-        <h3>{booth.name}</h3>
+        <div className="booth-detail-header">
+          <button className="close-button" onClick={handleCloseDetail}>×</button>
+        </div>
+        <div className="booth-title-row">
+          <h3>{booth.name}</h3>
+          <button 
+            className={`favorite-button-map ${isFavorite ? 'is-favorite' : ''}`}
+            onClick={(e) => toggleFavorite(booth, e)}
+            title={isFavorite ? "お気に入りから削除" : "お気に入りに追加"}
+          >
+            <Heart size={16} fill={isFavorite ? "#ff4d4d" : "none"} stroke="currentColor" />
+          </button>
+        </div>
         <p>{`${booth.area}-${booth.area_number}`}</p>
         {booth.description && <p className="booth-description">{booth.description}</p>}
         {booth.url && (

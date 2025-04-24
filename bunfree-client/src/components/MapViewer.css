@@ -312,4 +312,56 @@
 .close-button:focus {
   outline: none;
   box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+}
+
+.booth-title-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+  margin-bottom: 5px;
+}
+
+.booth-title-row h3 {
+  margin: 0;
+  margin-right: 8px;
+}
+
+.booth-detail-header {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.favorite-button-map {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+  color: #333;
+}
+
+.favorite-button-map:hover {
+  background-color: rgba(255, 77, 77, 0.1);
+  color: #ff4d4d;
+}
+
+.favorite-button-map:hover svg {
+  stroke: #ff4d4d;
+}
+
+.favorite-button-map.is-favorite {
+  animation: pulse 1s ease;
+  color: #ff4d4d;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
 } 

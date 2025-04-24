@@ -1,0 +1,418 @@
+.favorite-page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 20px;
+  overflow: auto;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  box-sizing: border-box;
+  background-color: #fff;
+}
+
+.favorite-header {
+  display: flex;
+  align-items: center;
+  position: relative;
+  flex-shrink: 0;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto 20px;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e0e0e0;
+  justify-content: center;
+  height: 60px;
+}
+
+.favorite-header h1 {
+  position: absolute;
+  left: 0;
+  right: 0;
+  text-align: center;
+  margin: 0;
+  font-size: 1.5rem;
+  color: #4a4a4a;
+}
+
+.back-button {
+  position: absolute;
+  left: 20px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  color: #6e6e6e;
+  text-decoration: none;
+  padding: 8px;
+  border-radius: 50px;
+  transition: background-color 0.2s;
+  width: 36px;
+  height: 36px;
+  justify-content: center;
+}
+
+.back-button:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: #333;
+}
+
+.back-button span {
+  margin-left: 4px;
+}
+
+.back-button-spacer {
+  width: 40px; /* 戻るボタンと同じくらいの幅 */
+  visibility: hidden;
+}
+
+.favorite-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  max-width: 800px;
+  margin: 0 auto;
+  color: #666;
+}
+
+.empty-favorites {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 300px;
+  text-align: center;
+  color: #666;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f8f8f8;
+  border-radius: 8px;
+}
+
+.favorite-map-section {
+  margin-bottom: 30px;
+  flex-shrink: 0;
+  max-width: 15cm;
+  width: 100%;
+  margin: 0 auto 30px;
+}
+
+/* チャットページと同じようにマップを表示 */
+.favorite-map-section .map-viewer {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.favorite-details-section {
+  display: flex;
+  flex-direction: column;
+  max-width: 800px;
+  width: 100%;
+  margin: 0 auto;
+  padding-bottom: 30px;
+}
+
+.favorite-details-section h2 {
+  margin-bottom: 15px;
+  font-size: 1.4rem;
+  flex-shrink: 0;
+  color: #4a4a4a;
+  padding-left: 5px;
+  border-left: 3px solid #54D0F2;
+}
+
+.favorite-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 15px;
+  padding-bottom: 20px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.favorite-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 15px;
+  border-radius: 8px;
+  background-color: #f8f8f8;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.favorite-item:hover {
+  background-color: #f0f0f0;
+  transform: translateY(-2px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+}
+
+.favorite-item.selected {
+  background-color: #e8f0ff;
+  border: 1px solid #a0c8ff;
+}
+
+.booth-info {
+  flex: 1;
+}
+
+.booth-info.wide-info {
+  width: 100%;
+}
+
+.booth-info h3 {
+  margin: 0 0 5px 0;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.booth-location {
+  margin: 0 0 8px 0;
+  color: #555;
+  font-weight: bold;
+}
+
+.booth-description {
+  margin: 8px 0 0;
+  font-size: 0.9rem;
+  color: #666;
+  line-height: 1.4;
+  max-height: 4.2em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+.booth-description-full {
+  margin: 8px 0 0;
+  font-size: 0.9rem;
+  color: #333;
+  line-height: 1.5;
+  white-space: pre-line;
+  background-color: #f0f0f0;
+  padding: 10px;
+  border-radius: 4px;
+  border-left: 3px solid #ddd;
+}
+
+.remove-favorite {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  margin-left: 10px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+.remove-favorite:hover {
+  background-color: rgba(255, 77, 77, 0.1);
+  transform: scale(1.1);
+}
+
+/* 地図のお気に入りマーカースタイル */
+.favorite-marker {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  margin-left: -7px;
+  margin-top: -7px;
+  background-color: #ff4d4d;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  z-index: 10;
+  transition: transform 0.2s, background-color 0.2s;
+}
+
+.favorite-marker:hover {
+  transform: scale(1.2);
+  background-color: #ff3333;
+  box-shadow: 0 0 0 3px rgba(255, 77, 77, 0.3);
+}
+
+.favorite-marker.selected {
+  width: 18px;
+  height: 18px;
+  margin-left: -9px;
+  margin-top: -9px;
+  background-color: #ff4d4d;
+  border: 3px solid #fff;
+  transform: scale(1);
+  z-index: 20;
+  box-shadow: 0 0 0 3px rgba(255, 77, 77, 0.5);
+}
+
+/* お気に入りページのアニメーション */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.favorite-item {
+  animation: fadeIn 0.3s ease;
+}
+
+/* 選択されたブースの詳細情報 */
+.selected-booth-detail {
+  grid-column: 1 / -1;
+  width: 100%;
+}
+
+.booth-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.booth-detail-section {
+  margin-top: 15px;
+  border-top: 1px solid #eee;
+  padding-top: 10px;
+}
+
+.section-label {
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #555;
+}
+
+.items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.item-card {
+  background-color: #fff;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  padding: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.item-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.item-name {
+  font-weight: bold;
+  margin-left: 8px;
+  font-size: 0.95rem;
+}
+
+.item-details p {
+  margin: 5px 0;
+  font-size: 0.85rem;
+  color: #555;
+}
+
+.item-details p span {
+  font-weight: bold;
+  color: #333;
+}
+
+.item-description {
+  border-top: 1px dashed #eee;
+  margin-top: 8px;
+  padding-top: 8px;
+}
+
+.placeholder-message {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100px;
+  background-color: #f8f8f8;
+  border-radius: 8px;
+  color: #666;
+  text-align: center;
+  font-style: italic;
+}
+
+.booth-url-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #333;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.2s;
+  font-size: 14px;
+  width: 100%;
+  max-width: 300px;
+  margin: 0 auto;
+}
+
+.booth-url-button:hover {
+  background-color: #000;
+  transform: translateY(-2px);
+}
+
+.booth-url-button span {
+  margin-left: 8px;
+}
+
+/* レスポンシブ対応のための追加スタイル */
+@media (max-width: 768px) {
+  .favorite-list {
+    grid-template-columns: 1fr;
+  }
+  
+  .items-list {
+    grid-template-columns: 1fr;
+  }
+  
+  .favorite-header h1 {
+    font-size: 1.3rem;
+  }
+  
+  .favorite-page {
+    padding: 10px;
+  }
+  
+  .favorite-details-section h2 {
+    font-size: 1.2rem;
+  }
+}
+
+.no-items-message {
+  font-style: italic;
+  color: #777;
+  text-align: center;
+  padding: 15px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+} 
