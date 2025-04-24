@@ -157,7 +157,7 @@ const FavoritePage: React.FC = () => {
                     ) : (
                       <div className={styles["booth-detail-section"]}>
                         <p className={styles["section-label"]}>販売商品:</p>
-                        <p className={styles["no-items-message"]}>登録されている商品情報はありません。</p>
+                        <p className={styles["no-items-message"]}>チャットでの検索結果に販売商品が含まれていなかったようです。文フリのページを確認してください。</p>
                       </div>
                     )}
                     
