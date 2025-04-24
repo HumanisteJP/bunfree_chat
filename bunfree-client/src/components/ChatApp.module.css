@@ -379,4 +379,38 @@
 
 .kofi-button-animated:hover {
   transform: translateY(-2px);
+}
+
+/* お気に入りリンク用のスタイル */
+.favorite-link-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 12px;
+  margin-bottom: 5px;
+  padding: 10px;
+  background-color: #f8f8f8;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.favorite-link-container:hover {
+  background-color: #f0f0f0;
+  transform: translateY(-2px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+.favorite-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #333;
+  font-size: 14px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.favorite-link-icon {
+  color: #ff4d4d;
 } 

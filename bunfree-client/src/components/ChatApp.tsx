@@ -7,7 +7,7 @@ import styles from './ChatApp.module.css';
 // markdown-itをインポート
 import MarkdownIt from 'markdown-it';
 // lucide-reactから必要なアイコンをインポート
-import { SendIcon, Trash2Icon, BookHeart } from 'lucide-react';
+import { SendIcon, Trash2Icon, BookHeart, Heart, MapPin } from 'lucide-react';
 // データベース関連のインポート
 import { getAllMessagesChronological, saveMessage, clearAllMessages } from '../db/db';
 
@@ -326,6 +326,14 @@ const ChatApp = () => {
                         boothResults={msg.llmResponse.boothResults || []}
                         itemResults={msg.llmResponse.itemResults || []}
                       />
+                      
+                      {/* お気に入りページへの誘導 */}
+                      <div className={styles["favorite-link-container"]} onClick={navigateToFavorites}>
+                        <div className={styles["favorite-link"]}>
+                          <Heart size={16} className={styles["favorite-link-icon"]} fill="#ff4d4d" />
+                          <span>気に入ったブースは「お気に入り」に追加できます！お気に入りページでまとめて確認できます</span>
+                        </div>
+                      </div>
                     </>
                   )}
                   
