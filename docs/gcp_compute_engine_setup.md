@@ -76,12 +76,18 @@ EOF
 # cronジョブの設定 (12時間ごとに実行：0時と12時)
 (crontab -l 2>/dev/null; echo "0 0,12 * * * cd /home/$USER/bunfree_chat && ./backup.sh && python3 scripts/item_updater.py >> /home/$USER/item_updater.log 2>&1") | crontab -
 
+# バックアップを取らない一時間ごとの実行
+(crontab -l 2>/dev/null; echo "0 * * * * cd /home/$USER/bunfree_chat && python3 scripts/item_updater.py >> /home/$USER/item_updater.log 2>&1") | crontab -
+
+# crontabをリセットするコマンド
+# crontab -r
+
 # 設定確認
 crontab -l
 ```
 
 
-## 6. 実行スクリプトの作成（コスト削減版）※これは使わない
+## 6. 実行スクリプトの作成（コスト削減版）
 
 ```bash
 # 実行スクリプトの作成
@@ -108,7 +114,7 @@ EOF
 chmod +x run_updater.sh
 ```
 
-## 7. インスタンススケジュールによる自動起動（公式機能使用）※マジで危ないのでこれは使わない
+## 7. インスタンススケジュールによる自動起動（公式機能使用）
 
 GCPには便利なインスタンススケジュール機能があるよ！これを使うと簡単に自動起動と停止がセットアップできるよ！
 
