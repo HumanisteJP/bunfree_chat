@@ -15,6 +15,7 @@
   box-sizing: border-box;
   background-color: #fff;
   animation: pageFadeIn 0.3s ease-in-out;
+  gap: 20px;
 }
 
 @keyframes pageFadeIn {
