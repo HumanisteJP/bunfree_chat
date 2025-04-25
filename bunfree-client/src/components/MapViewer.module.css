@@ -40,8 +40,8 @@
 .booth-marker::before {
   content: '';
   position: absolute;
-  width: 44px;
-  height: 44px;
+  width: 24px;
+  height: 24px;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -67,8 +67,8 @@
 .item-marker::before {
   content: '';
   position: absolute;
-  width: 44px;
-  height: 44px;
+  width: 24px;
+  height: 24px;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
