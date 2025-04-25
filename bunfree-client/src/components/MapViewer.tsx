@@ -17,8 +17,37 @@ const MapViewer: React.FC<MapViewerProps> = ({ boothResults, itemResults = [], o
   const [selectedBooth, setSelectedBooth] = useState<any>(null);
   const [closingBooth, setClosingBooth] = useState<any>(null);
   const [favoriteBooths, setFavoriteBooths] = useState<Record<number, boolean>>({});
+  const [isTouchDevice, setIsTouchDevice] = useState<boolean>(false);
+  const [isTouchActive, setIsTouchActive] = useState<boolean>(false);
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapViewerRef = useRef<HTMLDivElement>(null);
+
+  // タッチデバイス検出
+  useEffect(() => {
+    // タッチイベントがサポートされているかチェック
+    const isTouchSupported = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    setIsTouchDevice(isTouchSupported);
+    
+    // タッチデバイスの場合、hoverを無効化するためのクラスを追加
+    if (isTouchSupported && mapViewerRef.current) {
+      mapViewerRef.current.classList.add(styles['touch-device']);
+    }
+  }, []);
+
+  useEffect(() => {
+    // タップ操作時にhoverの疑似要素を非表示にする
+    const container = mapContainerRef.current;
+    if (container) {
+      const handleTouchStart = () => setIsTouchActive(true);
+      const handleMouseDown = () => setIsTouchActive(false);
+      container.addEventListener('touchstart', handleTouchStart);
+      container.addEventListener('mousedown', handleMouseDown);
+      return () => {
+        container.removeEventListener('touchstart', handleTouchStart);
+        container.removeEventListener('mousedown', handleMouseDown);
+      };
+    }
+  }, []);
 
   // エリア名からマップ番号を判断する関数
   const getMapNumberFromArea = (area: string): number => {
@@ -263,7 +292,7 @@ const MapViewer: React.FC<MapViewerProps> = ({ boothResults, itemResults = [], o
   };
 
   return (
-    <div className={styles["map-viewer"]} ref={mapViewerRef}>
+    <div className={`${styles["map-viewer"]} ${isTouchActive ? styles["touch-active"] : ""}`} ref={mapViewerRef}>
       <div 
         className={styles["map-container"]} 
         ref={mapContainerRef}

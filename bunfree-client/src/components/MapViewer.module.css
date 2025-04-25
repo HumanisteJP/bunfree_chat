@@ -119,43 +119,49 @@
   pointer-events: none;
 }
 
-/* マーカーラベルを表示（ホバー時のみ） */
-.booth-marker:hover::after,
-.item-marker:hover::after {
-  content: attr(title);
-  position: absolute;
-  top: -40px;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: rgba(255, 255, 255, 0.95);
-  color: #333;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 11px;
-  line-height: 1.2;
-  white-space: nowrap;
-  font-weight: bold;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-  z-index: 50;
-  min-height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  animation: fadeInLabel 0.15s ease-out forwards;
-  pointer-events: none;
-  transform-origin: center bottom;
-  will-change: transform, opacity;
+/* マーカーラベルを表示（ホバー時のみ） - PCでのみ表示 */
+@media (hover: none) {
+  .booth-marker:hover::after,
+  .item-marker:hover::after {
+    content: none;
+  }
 }
 
-@keyframes fadeInLabel {
-  0% {
+/* タッチデバイス検知用のクラス */
+.touch-device .booth-marker:hover::after,
+.touch-device .item-marker:hover::after {
+  /* タッチデバイスではhover時のafter要素を表示しない */
+  content: none !important;
+}
+
+/* PCなど、ホバー機能あるデバイスではラベルを表示 */
+@media (hover: hover) and (pointer: fine) {
+  .booth-marker:hover::after,
+  .item-marker:hover::after {
+    content: attr(title);
+    position: absolute;
+    top: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(255, 255, 255, 0.95);
+    color: #333;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    line-height: 1.2;
+    white-space: nowrap;
+    font-weight: bold;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    z-index: 50;
+    min-height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     opacity: 0;
-    transform: translateX(-50%) translateY(8px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
+    animation: fadeInLabel 0.15s ease-out forwards;
+    pointer-events: none;
+    transform-origin: center bottom;
+    will-change: transform, opacity;
   }
 }
 
@@ -388,4 +394,22 @@
   0% { transform: scale(1); }
   50% { transform: scale(1.2); }
   100% { transform: scale(1); }
+}
+
+@keyframes fadeInLabel {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* タッチ操作中はホバーラベル非表示 */
+.touch-active .booth-marker:hover::after,
+.touch-active .item-marker:hover::after {
+  display: none !important;
+  content: none !important;
 } 
