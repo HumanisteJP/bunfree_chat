@@ -17,16 +17,13 @@ const MapViewer: React.FC<MapViewerProps> = ({ boothResults, itemResults = [], o
   const [selectedBooth, setSelectedBooth] = useState<any>(null);
   const [closingBooth, setClosingBooth] = useState<any>(null);
   const [favoriteBooths, setFavoriteBooths] = useState<Record<number, boolean>>({});
-  const [isTouchDevice, setIsTouchDevice] = useState<boolean>(false);
   const [isTouchActive, setIsTouchActive] = useState<boolean>(false);
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapViewerRef = useRef<HTMLDivElement>(null);
 
-  // タッチデバイス検出
   useEffect(() => {
     // タッチイベントがサポートされているかチェック
     const isTouchSupported = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-    setIsTouchDevice(isTouchSupported);
     
     // タッチデバイスの場合、hoverを無効化するためのクラスを追加
     if (isTouchSupported && mapViewerRef.current) {

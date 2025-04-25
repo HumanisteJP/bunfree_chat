@@ -119,6 +119,15 @@
   pointer-events: none;
 }
 
+/* タッチデバイス（粗いポインタ）ではhover後のラベルを完全に無効化 */
+@media (pointer: coarse) {
+  .booth-marker:hover::after,
+  .item-marker:hover::after {
+    display: none !important;
+    content: none !important;
+  }
+}
+
 /* マーカーラベルを表示（ホバー時のみ） - PCでのみ表示 */
 @media (hover: none) {
   .booth-marker:hover::after,
