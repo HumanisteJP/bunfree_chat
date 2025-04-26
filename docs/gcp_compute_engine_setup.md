@@ -130,6 +130,13 @@ gcloud compute resource-policies create instance-schedule item-updater-schedule 
 gcloud compute instances add-resource-policies item-updater-vm \
     --resource-policies=item-updater-schedule \
     --zone=asia-northeast1-a
+
+# 停止スケジュールの追加
+gcloud compute resource-policies update instance-schedule item-updater-schedule \
+  --region=asia-northeast1 \
+  --vm-stop-schedule="0 1,13 * * *"
+
+gcloud compute resource-policies describe item-updater-schedule --region=asia-northeast1
 ```
 
 スケジュールを変更したい場合：
