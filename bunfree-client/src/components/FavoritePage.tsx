@@ -6,6 +6,8 @@ import { getAllFavoriteBooths, removeFavoriteBooth } from '../db/db';
 import styles from './FavoritePage.module.css';
 // ヘッダーコンポーネントをインポート
 import HeaderComponent from './HeaderComponent';
+// GoogleアナリティクスのインポートGAを追加
+import ReactGA from 'react-ga4';
 
 const FavoritePage: React.FC = () => {
   const [favoriteBooths, setFavoriteBooths] = useState<any[]>([]);
@@ -61,8 +63,14 @@ const FavoritePage: React.FC = () => {
   };
 
   // URLを開く処理
-  const openBoothUrl = (url: string) => {
+  const openBoothUrl = (url: string, booth: any) => {
     if (url) {
+      // Google Analyticsでトラッキング
+      ReactGA.event({
+        category: 'FavoriteList',
+        action: 'NavigateToBunfreePage',
+        label: `Booth: ${booth.area}-${booth.area_number} ${booth.name}`
+      });
       window.open(url, '_blank');
     }
   };
@@ -139,7 +147,7 @@ const FavoritePage: React.FC = () => {
                         className={styles["booth-url-button"]} 
                         onClick={(e) => {
                           e.stopPropagation();
-                          openBoothUrl(item.boothData.url);
+                          openBoothUrl(item.boothData.url, item.boothData);
                         }}
                       >
                         <ExternalLink size={16} />

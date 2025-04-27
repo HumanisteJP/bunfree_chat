@@ -482,3 +482,296 @@ GitHubアクションを設定した場合、メインブランチへの変更�
 ---
 
 本デプロイガイドを参考に、bunfree-apiをCloud Runに、bunfree-clientをFirebase Hostingにデプロイすることで、スケーラブルで高パフォーマンスな環境を構築できます。この構成はコスト効率が良く、運用負荷も低いため、中小規模のアプリケーションに最適です。 
+
+## 8. Googleアナリティクスの設定
+
+Googleアナリティクスを使用して、ユーザーの行動データを収集・分析することができます。Viteを使ったReactアプリケーションにGoogleアナリティクスを導入する手順を説明します。
+
+### 8.1 Googleアナリティクス4(GA4)のセットアップ
+
+1. [Google Analytics](https://analytics.google.com/)にアクセスし、アカウントを作成またはログインします
+2. 新しいプロパティを作成し（既存の場合は省略）、データストリームを設定します
+3. ウェブストリームを選択し、Webサイトの情報を入力します
+4. セットアップが完了すると**測定ID**（G-XXXXXXXXXの形式）が発行されます。この測定IDを保存しておきます
+
+### 8.2 react-ga4パッケージのインストール
+
+GAをReactアプリケーションで簡単に使用するために、react-ga4パッケージをインストールします：
+
+```bash
+npm install react-ga4
+```
+
+### 8.3 クライアントプロジェクトへの実装方法
+
+#### 8.3.1 基本的な実装方法
+
+1. 環境変数の設定
+
+`.env.local`ファイル（開発環境用）と`.env.production`ファイル（本番環境用）を作成します：
+
+```
+# .env.local または .env.development
+VITE_GA_MEASUREMENT_ID=G-XXXXXXXXX
+```
+
+```
+# .env.production
+VITE_GA_MEASUREMENT_ID=G-XXXXXXXXX
+```
+
+実際の測定IDに置き換えてください。
+
+2. メインコンポーネントでの初期化
+
+`src/main.tsx`または`src/App.tsx`などのメインコンポーネントでGAを初期化します：
+
+```tsx
+import ReactGA from 'react-ga4';
+
+// GAの初期化
+if (import.meta.env.VITE_GA_MEASUREMENT_ID) {
+  ReactGA.initialize(import.meta.env.VITE_GA_MEASUREMENT_ID);
+}
+```
+
+3. ルート変更時のページビュー追跡
+
+React Routerを使用している場合は、以下のようにページビューを追跡します：
+
+```tsx
+import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+import ReactGA from 'react-ga4';
+
+function App() {
+  const location = useLocation();
+
+  useEffect(() => {
+    if (import.meta.env.VITE_GA_MEASUREMENT_ID) {
+      // URLが変更されるたびにページビューを記録
+      ReactGA.send({ hitType: "pageview", page: location.pathname + location.search });
+    }
+  }, [location]);
+
+  return (
+    // コンポーネントの内容
+  );
+}
+```
+
+#### 8.3.2 イベント追跡の実装例
+
+1. ボタンクリックのトラッキング
+
+```tsx
+import ReactGA from 'react-ga4';
+
+function SupportButton() {
+  const handleClick = () => {
+    if (import.meta.env.VITE_GA_MEASUREMENT_ID) {
+      ReactGA.event({
+        category: 'User',
+        action: 'Clicked Support Button',
+        label: 'Kofi Button'
+      });
+    }
+    
+    // その他の処理
+    window.open('https://ko-fi.com/yourusername', '_blank');
+  };
+
+  return (
+    <button onClick={handleClick}>サポートする</button>
+  );
+}
+```
+
+2. フォーム送信のトラッキング
+
+```tsx
+import ReactGA from 'react-ga4';
+
+function ContactForm() {
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    
+    if (import.meta.env.VITE_GA_MEASUREMENT_ID) {
+      ReactGA.event({
+        category: 'Form',
+        action: 'Submit',
+        label: 'Contact Form'
+      });
+    }
+    
+    // フォーム送信処理
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      {/* フォーム要素 */}
+      <button type="submit">送信</button>
+    </form>
+  );
+}
+```
+
+3. 外部リンククリックのトラッキング
+
+お気に入りブースから文学フリマのページへの遷移をトラッキングする例：
+
+```tsx
+import ReactGA from 'react-ga4';
+
+function BoothItem({ booth }) {
+  const openBoothUrl = (url, booth) => {
+    if (url) {
+      // Google Analyticsでトラッキング
+      if (import.meta.env.VITE_GA_MEASUREMENT_ID) {
+        ReactGA.event({
+          category: 'FavoriteList',
+          action: 'NavigateToBunfreePage',
+          label: `Booth: ${booth.area}-${booth.area_number} ${booth.name}`
+        });
+      }
+      window.open(url, '_blank');
+    }
+  };
+
+  return (
+    <div className="booth-item">
+      <h3>{booth.name}</h3>
+      <p>{booth.area}-{booth.area_number}</p>
+      <button onClick={() => openBoothUrl(booth.url, booth)}>
+        文フリのページへ移動
+      </button>
+    </div>
+  );
+}
+```
+
+#### 8.3.3 カスタムディメンションの活用
+
+ユーザー属性や追加情報を送信するには、カスタムディメンションを使用します：
+
+```tsx
+import ReactGA from 'react-ga4';
+
+// ユーザー属性を設定
+ReactGA.set({
+  userType: 'subscriber',
+  language: 'ja'
+});
+
+// イベントと一緒にカスタムディメンションを送信
+ReactGA.event({
+  category: 'Engagement',
+  action: 'Download',
+  label: 'PDF Guide',
+  userType: 'subscriber'  // カスタムディメンション
+});
+```
+
+### 8.4 アナリティクスデータの分析
+
+#### 8.4.1 主要指標の確認
+
+1. **ユーザー行動の分析**：
+   - ページビュー数と滞在時間
+   - ユーザーのナビゲーションパス
+   - 離脱率の高いページ
+
+2. **コンバージョン測定**：
+   - 文フリページへの遷移率
+   - お気に入り追加率
+   - 検索からのブース選択率
+
+#### 8.4.2 レポートの作成
+
+Google Analyticsの「カスタムレポート」機能を使用して、以下のような独自レポートを作成できます：
+
+1. **ユーザーエンゲージメントレポート**：
+   - 平均セッション時間
+   - ユーザーあたりの行動数（検索、お気に入り追加など）
+   - リピート率
+
+2. **機能使用状況レポート**：
+   - 検索機能の使用頻度
+   - マップ表示とリスト表示の比較
+   - お気に入り機能の使用パターン
+
+### 8.5 注意点：Viteでの環境変数の扱い
+
+Viteでは環境変数はビルド時に静的に置換されるため、デプロイ後に環境変数を変更しても反映されません。そのため、環境変数を使用する場合は以下の点に注意してください：
+
+- 環境ごとに別々のビルドを行う必要があります
+- リリース前に正しい環境変数が設定されていることを確認してください
+- ランタイムで変更したい設定は、環境変数ではなく別の方法（APIから設定を取得するなど）で実装することを検討してください
+
+### 8.6 プライバシー対応とCookieの設定
+
+GDPRやCCPAなどのプライバシー規制に対応するために、以下の対応を検討してください：
+
+1. プライバシーポリシーを作成し、Googleアナリティクスの使用について明記する
+2. Cookieの使用に関する同意を取得するバナーを実装する
+3. 同意を得た場合のみGAを有効化する処理を追加する
+
+サンプル実装（同意バナー）：
+
+```tsx
+import { useState, useEffect } from 'react';
+import ReactGA from 'react-ga4';
+
+function CookieConsent() {
+  const [consent, setConsent] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    // ローカルストレージから同意状態を読み込む
+    const savedConsent = localStorage.getItem('cookie-consent');
+    if (savedConsent) {
+      setConsent(savedConsent === 'true');
+    }
+  }, []);
+
+  useEffect(() => {
+    // 同意状態が変更されたら保存する
+    if (consent !== null) {
+      localStorage.setItem('cookie-consent', String(consent));
+      
+      // 同意された場合、GAを初期化
+      if (consent && import.meta.env.VITE_GA_MEASUREMENT_ID) {
+        ReactGA.initialize(import.meta.env.VITE_GA_MEASUREMENT_ID);
+      }
+    }
+  }, [consent]);
+
+  if (consent !== null) return null;
+
+  return (
+    <div className="cookie-banner">
+      <p>当サイトではGoogleアナリティクスを使用しています。続行することで、Cookieの使用に同意したことになります。</p>
+      <div>
+        <button onClick={() => setConsent(true)}>同意する</button>
+        <button onClick={() => setConsent(false)}>拒否する</button>
+      </div>
+    </div>
+  );
+}
+
+export default CookieConsent;
+```
+
+### 8.7 GAデータの確認方法
+
+1. [Google Analytics](https://analytics.google.com/)にアクセス
+2. 左側のメニューから「リアルタイム」を選択すると、現在のアクティブユーザーを確認できます
+3. 「レポート」セクションでは、過去のデータを様々な角度から分析できます
+
+デプロイ後、GAが正しく動作していることを確認するために、自分自身でサイトにアクセスし、リアルタイムレポートに表示されるか確認してください。特に以下のアクションをテストしましょう：
+
+- 各ページへのナビゲーション（ページビュー追跡のテスト）
+- 検索機能の使用（検索クエリトラッキングのテスト）
+- ブースのお気に入り登録/解除（ユーザーアクションのテスト）
+- お気に入りリストから文フリページへの遷移（外部リンクトラッキングのテスト）
+
+デプロイ後、GAが正しく動作していることを確認するために、自分自身でサイトにアクセスし、リアルタイムレポートに表示されるか確認してください。 

@@ -12,6 +12,12 @@ import { SendIcon, Trash2Icon, BookHeart, Heart } from 'lucide-react';
 import { getAllMessagesChronological, saveMessage, clearAllMessages } from '../db/db';
 // ヘッダーコンポーネントをインポート
 import HeaderComponent from './HeaderComponent';
+// GoogleアナリティクスのインポートGAを追加
+import ReactGA from 'react-ga4';
+
+// GAの初期化（メインコンポーネントでも初期化している場合は不要）
+// アプリの起動時に一度だけ初期化する必要があります
+ReactGA.initialize("G-MQEJFRSRS3");
 
 // APIのURL設定 - 環境変数または固定値
 const API_URL = 'https://bunfree-api-856411377838.asia-northeast1.run.app';
@@ -119,6 +125,11 @@ const ChatApp = () => {
 
   // お気に入りページへ遷移
   const navigateToFavorites = () => {
+    // Googleアナリティクスでお気に入りページへの遷移を記録
+    ReactGA.event({
+      category: 'Navigation',
+      action: 'ViewFavorites',
+    });
     navigate('/favorites');
   };
 
@@ -151,14 +162,14 @@ const ChatApp = () => {
         top: document.body.scrollHeight,
         behavior: 'smooth'
       });
-      
+
       // 少し遅延させてスクロールを確実にする
       setTimeout(() => {
         window.scrollTo({
           top: document.body.scrollHeight,
           behavior: 'auto'
         });
-        
+
         // messageEndRefの要素も表示範囲内に入れる
         messageEndRef.current?.scrollIntoView({ behavior: 'smooth' });
       }, 100);
@@ -170,30 +181,37 @@ const ChatApp = () => {
     e.preventDefault();
     if (!input.trim()) return;
 
+    // Googleアナリティクスでユーザーの検索クエリを記録
+    ReactGA.event({
+      category: 'Search',
+      action: 'QuerySubmitted',
+      label: input, // 実際の検索クエリを記録
+    });
+
     // ユーザーメッセージをチャットに追加
     const userMessage = { role: 'user' as const, content: input };
     setMessages(prev => [...prev, userMessage]);
-    
+
     // ユーザーメッセージをIndexedDBに保存
     try {
       await saveMessage(userMessage);
     } catch (error) {
       console.error('メッセージの保存に失敗しました:', error);
     }
-    
+
     setInput('');
     setLoading(true);
 
     try {
       // 直近のメッセージを取得（最大2つ - 直前のAIの応答とユーザーの直前の質問）
       const recentMessages = messages.slice(-2);
-      
+
       // 直近のメッセージを文字列化
       let context = '';
       if (recentMessages.length > 0) {
         context = recentMessages.map(msg => `${msg.role}: ${msg.content}`).join(' | ');
       }
-      
+
       // APIリクエスト
       const response = await fetch(`${API_URL}/?message=${encodeURIComponent(input + " [前回の会話: " + context + "]")}`);
 
@@ -244,7 +262,14 @@ const ChatApp = () => {
 
       // アシスタントの応答をチャットに追加
       setMessages(prev => [...prev, assistantMessage]);
-      
+
+      // Googleアナリティクスで検索結果を記録（ブース数などの情報）
+      ReactGA.event({
+        category: 'Search',
+        action: 'ResultReceived',
+        label: `Booths: ${safeData.boothResults.length}, Items: ${safeData.itemResults.length}`,
+      });
+
       // アシスタントの応答をIndexedDBに保存
       try {
         await saveMessage(assistantMessage);
@@ -253,15 +278,23 @@ const ChatApp = () => {
       }
     } catch (error) {
       console.error('エラー:', error);
+
+      // Googleアナリティクスでエラーを記録
+      ReactGA.event({
+        category: 'Error',
+        action: 'APIError',
+        label: error instanceof Error ? error.message : '不明なエラー',
+      });
+
       // エラーメッセージを作成
       const errorMessage = {
         role: 'assistant' as const,
         content: `すみません、エラーが発生しました: ${error instanceof Error ? error.message : '不明なエラー'}`
       };
-      
+
       // エラーメッセージをチャットに追加
       setMessages(prev => [...prev, errorMessage]);
-      
+
       // エラーメッセージをIndexedDBに保存
       try {
         await saveMessage(errorMessage);
@@ -279,11 +312,26 @@ const ChatApp = () => {
       try {
         await clearAllMessages();
         setMessages([]);
+
+        // Googleアナリティクスでチャット履歴消去を記録
+        ReactGA.event({
+          category: 'UserAction',
+          action: 'ClearChatHistory',
+        });
       } catch (error) {
         console.error('チャット履歴の削除に失敗しました:', error);
         alert('チャット履歴の削除に失敗しました');
       }
     }
+  };
+
+  // お気に入りページへの遷移時のトラッキング関数
+  const trackMapView = (boothCount: number) => {
+    ReactGA.event({
+      category: 'Map',
+      action: 'ViewMap',
+      label: `Booths: ${boothCount}`,
+    });
   };
 
   return (
@@ -335,11 +383,13 @@ const ChatApp = () => {
                     (msg.llmResponse.itemResults && msg.llmResponse.itemResults.length > 0)) && (
                     <>
                       <div className={styles["map-label"]}>ブースの場所を地図で表示しています↓</div>
-                      <MapViewer
-                        boothResults={msg.llmResponse.boothResults || []}
-                        itemResults={msg.llmResponse.itemResults || []}
-                      />
-                      
+                      <div onLoad={() => trackMapView(msg.llmResponse?.boothResults?.length || 0)}>
+                        <MapViewer
+                          boothResults={msg.llmResponse.boothResults || []}
+                          itemResults={msg.llmResponse.itemResults || []}
+                        />
+                      </div>
+
                       {/* お気に入りページへの誘導 */}
                       <div className={styles["favorite-link-container"]} onClick={navigateToFavorites}>
                         <div className={styles["favorite-link"]}>
@@ -349,15 +399,15 @@ const ChatApp = () => {
                       </div>
                     </>
                   )}
-                  
-                  {/* Ko-fiボタンの追加 */}
-                  {index === messages.length - 1 && msg.role === 'assistant' && !loading && messages.length >= 2 && (
-                    <div className={styles["kofi-container"]}>
-                      <p className={styles["support-text"]}>{randomSupportPhrase}</p>
-                      <KofiButtonAnimated kofiId="C0C81AQPW8" label="Support me on Ko-fi" color={randomKofiColor} />
-                    </div>
-                  )}
-                  
+
+                {/* Ko-fiボタンの追加 */}
+                {index === messages.length - 1 && msg.role === 'assistant' && !loading && messages.length >= 2 && (
+                  <div className={styles["kofi-container"]}>
+                    <p className={styles["support-text"]}>{randomSupportPhrase}</p>
+                    <KofiButtonAnimated kofiId="C0C81AQPW8" label="Support me on Ko-fi" color={randomKofiColor} />
+                  </div>
+                )}
+
               </div>
             ))}
 

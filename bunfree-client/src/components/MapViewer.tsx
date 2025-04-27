@@ -3,6 +3,7 @@ import { BoothResult, ItemResult } from '../types';
 import { Heart } from 'lucide-react';
 import { addFavoriteBooth, removeFavoriteBooth, isFavoriteBooth } from '../db/db';
 import styles from './MapViewer.module.css';
+import ReactGA from 'react-ga4';
 
 interface MapViewerProps {
   boothResults: BoothResult[];
@@ -58,11 +59,21 @@ const MapViewer: React.FC<MapViewerProps> = ({ boothResults, itemResults = [], o
     // イベントの伝播を止める（マップクリックのイベントを発火させない）
     event.stopPropagation();
     
+    // イベントトラッキング用のブース情報
+    const boothInfo = `${booth.name} (${booth.area}-${booth.area_number})`;
+    
     // 同じブースを再度クリックした場合は詳細を閉じる
     if (selectedBooth && selectedBooth.id === booth.id) {
       handleCloseDetail();
       return;
     }
+    
+    // Googleアナリティクスでブース詳細表示を記録
+      ReactGA.event({
+        category: 'Map',
+        action: 'ViewBoothDetail',
+        label: boothInfo,
+      });
     
     // 他のブースが選択されていた場合、まず現在の選択を閉じる
     if (selectedBooth) {
@@ -105,6 +116,14 @@ const MapViewer: React.FC<MapViewerProps> = ({ boothResults, itemResults = [], o
   // URLを開く処理を分離
   const openBoothUrl = (url: string, event: React.MouseEvent) => {
     event.stopPropagation(); // イベントの伝播を止める
+    
+    // Googleアナリティクスでブースページへの遷移を記録
+      ReactGA.event({
+        category: 'Map',
+        action: 'ClickBoothUrl',
+        label: `${selectedBooth.name} (${selectedBooth.area}-${selectedBooth.area_number})`,
+      });
+    
     if (url) {
       window.open(url, '_blank');
     }
@@ -117,6 +136,9 @@ const MapViewer: React.FC<MapViewerProps> = ({ boothResults, itemResults = [], o
     try {
       const isFavorite = favoriteBooths[booth.id];
       
+      // イベントトラッキング用のブース情報
+      const boothInfo = `${booth.name} (${booth.area}-${booth.area_number})`;
+      
       if (isFavorite) {
         // お気に入りから削除
         await removeFavoriteBooth(booth.id);
@@ -124,6 +146,13 @@ const MapViewer: React.FC<MapViewerProps> = ({ boothResults, itemResults = [], o
           ...prev,
           [booth.id]: false
         }));
+        
+        // Googleアナリティクスでお気に入り削除を記録
+          ReactGA.event({
+            category: 'Favorite',
+            action: 'RemoveFavorite',
+            label: boothInfo,
+          });
       } else {
         // お気に入りに追加
         await addFavoriteBooth(booth);
@@ -131,6 +160,13 @@ const MapViewer: React.FC<MapViewerProps> = ({ boothResults, itemResults = [], o
           ...prev,
           [booth.id]: true
         }));
+        
+        // Googleアナリティクスでお気に入り追加を記録
+          ReactGA.event({
+            category: 'Favorite',
+            action: 'AddFavorite',
+            label: boothInfo,
+          });
       }
     } catch (error) {
       console.error('お気に入り操作に失敗しました:', error);
@@ -350,13 +386,29 @@ const MapViewer: React.FC<MapViewerProps> = ({ boothResults, itemResults = [], o
       <div className={styles["map-controls"]}>
         <button 
           className={mapNumber === 1 ? styles.active : ""} 
-          onClick={() => setMapNumber(1)}
+          onClick={() => {
+            setMapNumber(1);
+            // Googleアナリティクスで地図切り替えを記録
+              ReactGA.event({
+                category: 'Map',
+                action: 'SwitchMap',
+                label: '地図1（南１・２ホール）',
+              });
+          }}
         >
           地図１（南１・２ホール）
         </button>
         <button 
           className={mapNumber === 2 ? styles.active : ""} 
-          onClick={() => setMapNumber(2)}
+          onClick={() => {
+            setMapNumber(2);
+            // Googleアナリティクスで地図切り替えを記録
+              ReactGA.event({
+                category: 'Map',
+                action: 'SwitchMap',
+                label: '地図2（南３・４ホール）',
+              });
+          }}
         >
           地図２（南３・４ホール）
         </button>
