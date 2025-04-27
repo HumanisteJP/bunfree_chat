@@ -1,5 +1,18 @@
 {
   "projects": {
     "default": "gen-lang-client-0442330093"
-  }
+  },
+  "targets": {
+    "gen-lang-client-0442330093": {
+      "hosting": {
+        "bunfree-app": [
+          "bunfree-app"
+        ],
+        "bunfree-client": [
+          "bunfree-client"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }

@@ -1,5 +1,6 @@
 {
   "hosting": {
+    "target": "bunfree-client",
     "public": "dist",
     "ignore": [
       "firebase.json",

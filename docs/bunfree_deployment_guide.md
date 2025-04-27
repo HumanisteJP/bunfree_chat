@@ -262,6 +262,86 @@ firebase deploy --only hosting
 
 デプロイが完了すると、ホスティングURLが表示されます。このURLでアプリケーションにアクセスできます。
 
+### 3.5 独自のサブドメインの設定
+
+Firebase Hostingでは、独自のドメインやサブドメインを使用してサイトを公開できます。以下の手順で設定しましょう。
+
+#### 3.5.1 カスタムドメインの接続
+
+Firebase Hostingでは、独自のドメインやサブドメインを使用してサイトを公開できます。以下の手順で設定しましょう。
+
+1. Firebase CLIを使用して、追加のサイトを作成します：
+```sh
+firebase hosting:sites:create bunfree-client
+```
+
+2. ターゲットを設定します：
+```sh
+firebase target:apply hosting bunfree-client bunfree-client
+```
+
+3. サイトをデプロイする際は、ターゲットを指定します：
+```sh
+firebase deploy --only hosting:bunfree-client
+```
+
+注意: `firebase hosting:channel:deploy production --target bunfree-client` コマンドでチャンネルデプロイを使用することもできます。（`--site` ではなく `--target` を使用してください）
+
+#### 3.5.2 DNSレコードの設定
+
+1. Firebase Consoleにアクセスし、プロジェクトを選択
+2. 「Hosting」セクションに移動し、「カスタムドメインを追加」をクリック
+3. 使用したいドメイン（例：`chat.yourdomain.com`）を入力
+4. 表示されるDNSレコード（通常はCNAMEレコード）をドメインプロバイダーのDNS設定に追加
+5. DNSの伝播を待つ（通常数時間〜24時間）
+
+#### 3.5.3 SSL証明書の自動設定
+
+カスタムドメインを追加すると、Firebaseは自動的にSSL証明書を発行・更新します。証明書の状態はFirebase Consoleで確認できます。
+
+#### 3.5.4 firebase.jsonの更新
+
+複数のサイトをホスティングする場合は、`firebase.json`ファイルを更新して各サイトの設定を指定する必要があります。例えば：
+
+```json
+{
+  "hosting": {
+    "target": "bunfree-client",
+    "public": "dist",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}
+```
+
+また、`.firebaserc`ファイルが自動的に更新され、ターゲットとサイトのマッピングが追加されます：
+
+```json
+{
+  "projects": {
+    "default": "your-project-id"
+  },
+  "targets": {
+    "your-project-id": {
+      "hosting": {
+        "bunfree-client": [
+          "bunfree-client"
+        ]
+      }
+    }
+  }
+}
+```
+
 ## 4. Cloud RunとFirebase Hostingの連携
 
 ### 4.1 CORS設定の確認
@@ -271,9 +351,9 @@ APIのCORS設定が、Firebase Hostingのドメインからのリクエストを
 
 ```typescript
 app.use('/*', cors({
-  origin: 'https://your-firebase-app.web.app', // Firebase Hostingのドメイン
+  origin: ['https://your-firebase-app.web.app', 'https://chat.yourdomain.com'], // Firebase Hostingのドメインとカスタムドメイン
   allowHeaders: ['Content-Type', 'Authorization'],
-  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowMethods: ['GET', 'POST'],
   exposeHeaders: ['Content-Length'],
   maxAge: 86400,
 }))
@@ -362,6 +442,9 @@ gcloud run deploy bunfree-api --source .
 cd bunfree-client
 npm run build
 firebase deploy --only hosting
+
+# カスタムドメインを設定している場合は、特定のターゲットを指定してデプロイ
+firebase deploy --only hosting:bunfree-client
 ```
 
 ### 6.3 GitHubアクションによる自動デプロイ
@@ -381,6 +464,16 @@ GitHubアクションを設定した場合、メインブランチへの変更�
 - **ビルドエラー**: プロジェクトを正常にビルドできるか確認
 - **デプロイエラー**: `firebase deploy --debug`でデバッグ情報を表示
 - **GitHubアクションの失敗**: GitHubリポジトリのActionsタブでエラーを確認
+- **「Hosting site or target not detected」エラー**: `firebase.json`ファイルに`"target": "bunfree-client"`が設定されているか確認。このプロパティがないとターゲットを指定したデプロイができません。例：
+  ```json
+  {
+    "hosting": {
+      "target": "bunfree-client",
+      "public": "dist",
+      ...
+    }
+  }
+  ```
 
 ### 7.3 CORS関連の問題
 
