@@ -1,4 +1,5 @@
 import { Hono } from 'hono'
+import { serve } from '@hono/node-server'
 import { env } from 'hono/adapter'
 import { cors } from 'hono/cors'
 import z from 'zod'
@@ -21,7 +22,7 @@ const app = new Hono()
 app.use('/*', cors({
   origin: '*', // すべてのオリジンを許可（開発用）
   allowHeaders: ['Content-Type', 'Authorization'],
-  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowMethods: ['GET', 'POST'],
   exposeHeaders: ['Content-Length'],
   maxAge: 86400,
 }))
@@ -65,4 +66,18 @@ app.get('/', async (c) => {
   return c.json({ response });
 })
 
+// Cloud Run環境とCloudflare Workers環境の両方で動作するように調整
+// Node.js環境かどうかをチェック
+if (typeof process !== 'undefined' && process.env) {
+  // Node.js環境（Cloud Run）の場合はサーバーを起動
+  const port = parseInt(process.env.PORT || '8080');
+  console.log(`サーバーがポート ${port} で起動したよ～ (Node.js環境)`);
+
+  serve({
+    fetch: app.fetch,
+    port
+  });
+}
+
+// Cloudflare Workersおよびその他の環境向けにappをエクスポート
 export default app
