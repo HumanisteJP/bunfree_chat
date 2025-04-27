@@ -13,6 +13,9 @@ import { getAllMessagesChronological, saveMessage, clearAllMessages } from '../d
 // ヘッダーコンポーネントをインポート
 import HeaderComponent from './HeaderComponent';
 
+// APIのURL設定 - 環境変数または固定値
+const API_URL = import.meta.env.VITE_API_URL || 'https://bunfree-api.ushida-yosei.workers.dev';
+
 // マークダウンパーサーを初期化
 const md = new MarkdownIt({
   html: true,
@@ -192,7 +195,7 @@ const ChatApp = () => {
       }
       
       // APIリクエスト
-      const response = await fetch(`https://bunfree-api.ushida-yosei.workers.dev/?message=${encodeURIComponent(input + " [前回の会話: " + context + "]")}`);
+      const response = await fetch(`${API_URL}/?message=${encodeURIComponent(input + " [前回の会話: " + context + "]")}`);
 
       // レスポンスが正常かチェック
       if (!response.ok) {

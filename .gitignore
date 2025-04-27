@@ -136,3 +136,5 @@ dist
 .pnp.*
 
 cache
+.env.production
+*.cache

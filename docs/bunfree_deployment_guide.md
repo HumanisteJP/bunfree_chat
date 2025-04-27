@@ -233,10 +233,22 @@ Firebase初期化プロセスでは、以下の選択をします：
 プロジェクトのルートに`.env.production`ファイルを作成：
 
 ```
-VITE_API_URL=https://bunfree-api-xxxxxxxxxxxx-xx.a.run.app
+VITE_API_URL=https://bunfree-api-xxxxxxxx.asia-northeast1.run.app
 ```
 
-`VITE_API_URL`にはCloud Runデプロイ後に得られたAPIのURLを設定します。
+`VITE_API_URL`にはCloud Runデプロイ後に得られたAPIのURLを設定します。正確なURLはGCPコンソールのCloud Runサービス詳細画面で確認できます。
+
+また、クライアントコードでは環境変数を使用するよう変更します。`src/components/ChatApp.tsx`ファイル内で：
+
+```typescript
+// APIのURL設定 - 環境変数または固定値（フォールバック）
+const API_URL = import.meta.env.VITE_API_URL || 'https://bunfree-api.ushida-yosei.workers.dev';
+
+// 使用例
+const response = await fetch(`${API_URL}/?message=${encodeURIComponent(input)}`);
+```
+
+この設定により、本番環境ではCloud Run上のAPIを、環境変数が未設定の場合は開発用のバックアップAPIを使用します。
 
 ### 3.3 クライアントアプリのビルドとデプロイ
 
