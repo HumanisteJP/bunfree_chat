@@ -14,7 +14,7 @@ import { getAllMessagesChronological, saveMessage, clearAllMessages } from '../d
 import HeaderComponent from './HeaderComponent';
 
 // APIのURL設定 - 環境変数または固定値
-const API_URL = import.meta.env.VITE_API_URL || 'https://bunfree-api.ushida-yosei.workers.dev';
+const API_URL = 'https://bunfree-api-856411377838.asia-northeast1.run.app';
 
 // マークダウンパーサーを初期化
 const md = new MarkdownIt({
