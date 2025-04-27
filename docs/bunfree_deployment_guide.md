@@ -369,12 +369,7 @@ APIリクエストをCloud RunにリダイレクトするようにFirebaseのリ
 ```json
 {
   "hosting": {
-    "public": "dist",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ],
+    ...,
     "rewrites": [
       {
         "source": "/api/**",
@@ -402,6 +397,9 @@ VITE_API_URL=/api
 
 ```bash
 firebase deploy --only hosting
+
+# または特定のターゲットを指定する場合
+firebase deploy --only hosting:bunfree-client
 ```
 
 ## 5. デプロイの検証とモニタリング

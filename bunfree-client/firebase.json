@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "target": "bunfree-client",
+    "target": "bunfree-chat",
     "public": "dist",
     "ignore": [
       "firebase.json",
@@ -8,6 +8,13 @@
       "**/node_modules/**"
     ],
     "rewrites": [
+      {
+        "source": "/api/**",
+        "run": {
+          "serviceId": "bunfree-api",
+          "region": "asia-northeast1"
+        }
+      },
       {
         "source": "**",
         "destination": "/index.html"
