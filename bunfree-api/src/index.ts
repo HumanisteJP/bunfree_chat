@@ -20,7 +20,7 @@ const app = new Hono()
 
 // CORSミドルウェアを追加
 app.use('/*', cors({
-  origin: ['https://bunfree-chat.pages.dev/', 'https://bunfree-chat.web.app/', 'https://gen-lang-client-0442330093.web.app/', 'https://bunfree-client.web.app/' ,'https://bunfree-client.firebaseapp.com'], // すべてのオリジンを許可（開発用）
+  origin: ['https://bunfree-chat.pages.dev', 'https://bunfree-chat.web.app', 'https://gen-lang-client-0442330093.web.app', 'https://bunfree-client.web.app' ,'https://bunfree-client.firebaseapp.com'], // すべてのオリジンを許可（開発用）
   allowHeaders: ['Content-Type', 'Authorization'],
   allowMethods: ['GET', 'POST'],
   exposeHeaders: ['Content-Length'],
