@@ -116,11 +116,9 @@ const FavoriteMapViewer: React.FC<FavoriteMapViewerProps> = ({ favoriteBooths, o
               onClick={(e) => handleBoothClick(booth, e)}
               title={`${booth.area}-${booth.area_number}: ${booth.name}`}
             >
-              {(selectedBooth === null || isSelected) && (
-                <div className={styles["favorite-marker-label"]}>
-                  {booth.name}
-                </div>
-              )}
+              <div className={styles["favorite-marker-label"]}>
+                {booth.name}
+              </div>
             </div>
           );
         })}

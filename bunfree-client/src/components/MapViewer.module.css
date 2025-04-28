@@ -110,13 +110,13 @@
   white-space: nowrap;
   font-weight: bold;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-  opacity: 0;
+  opacity: 1;
   transition: opacity 0.2s ease;
   min-height: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
-  pointer-events: none;
+  pointer-events: auto;
 }
 
 /* タッチデバイス（粗いポインタ）ではhover後のラベルを完全に無効化 */

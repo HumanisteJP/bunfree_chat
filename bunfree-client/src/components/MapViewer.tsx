@@ -353,6 +353,12 @@ const MapViewer: React.FC<MapViewerProps> = ({ boothResults, itemResults = [], o
               onClick={(e) => handleBoothClick(booth, e)}
               title={`${booth.area}-${booth.area_number}: ${booth.name}`}
             >
+              {/* 常時表示するマーカーラベル（選択・閉鎖中は非表示） */}
+              {!(isSelected || isClosingThis) && (
+                <div className={styles["marker-label"]}>
+                  {`${booth.area}-${booth.area_number}: ${booth.name}`}
+                </div>
+              )}
               {isSelected && renderBoothDetail(booth, false)}
               {isClosingThis && renderBoothDetail(booth, true)}
             </div>
@@ -375,6 +381,12 @@ const MapViewer: React.FC<MapViewerProps> = ({ boothResults, itemResults = [], o
               onClick={(e) => handleBoothClick(booth, e)}
               title={`${booth.area}-${booth.area_number}: ${booth.name}`}
             >
+              {/* 常時表示するアイテムマーカーレベル（選択・閉鎖中は非表示） */}
+              {!(isSelected || isClosingThis) && (
+                <div className={styles["marker-label"]}>
+                  {`${booth.area}-${booth.area_number}: ${booth.name}`}
+                </div>
+              )}
               {isSelected && renderBoothDetail(booth, false)}
               {isClosingThis && renderBoothDetail(booth, true)}
             </div>
