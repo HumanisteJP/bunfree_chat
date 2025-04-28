@@ -5,7 +5,7 @@ import { RunnableSequence, RunnableBranch } from "@langchain/core/runnables";
 import { QdrantClient } from '@qdrant/js-client-rest';
 import { LLMResponse } from './types';
 import { classifyQueryPrompt, searchQueryGenerationPrompt } from './prompts';
-import { handleVectorSearch, handleBoothNameSearch, handleEventInfo, handleGeneralChat } from './handlers';
+import { handleVectorSearch, handleBoothNameSearch, handleBoothTwitterSearch, handleEventInfo, handleGeneralChat } from './handlers';
 // 回答生成関数
 async function getLlmAIResponse(userInput: string,qdrantUrl: string,qdrantApiKey: string,geminiApiKey: string,voyageApiKey: string): Promise<LLMResponse> {
   // LLMの初期化
@@ -53,6 +53,17 @@ async function getLlmAIResponse(userInput: string,qdrantUrl: string,qdrantApiKey
         const match = x.queryType.match(/BOOTH_NAME_SEARCH<(.+?)>/);
         const boothName = match ? match[1] : '';
         return handleBoothNameSearch(x.originalQuery, boothName, qdrantClient, llm);
+      }
+    ],
+    // Twitterアカウント検索処理
+    [
+      (x: { queryType: string; originalQuery: string }) =>
+        x.queryType.includes('BOOTH_TWITTER_SEARCH'),
+      async (x: { queryType: string; originalQuery: string }) => {
+        // BOOTH_TWITTER_SEARCH<twitter_account>の形式からアカウントを抽出
+        const match = x.queryType.match(/BOOTH_TWITTER_SEARCH<(.+?)>/);
+        const twitterAccount = match ? match[1] : '';
+        return handleBoothTwitterSearch(x.originalQuery, twitterAccount, qdrantClient, llm);
       }
     ],
     [

@@ -5,8 +5,8 @@ import { StringOutputParser } from "@langchain/core/output_parsers";
 import { RunnableSequence } from "@langchain/core/runnables";
 
 import { LLMResponse } from './types';
-import { searchBooths, searchItems, searchBoothByName } from './search';
-import { vectorSearchPrompt, boothNameSearchPrompt, eventInfoPrompt, generalChatPrompt } from './prompts';
+import { searchBooths, searchItems, searchBoothByName, searchBoothByTwitter } from './search';
+import { vectorSearchPrompt, boothNameSearchPrompt, boothTwitterSearchPrompt, eventInfoPrompt, generalChatPrompt } from './prompts';
 // ベクトル検索処理
 async function handleVectorSearch(
     query: string,
@@ -132,6 +132,46 @@ async function handleBoothNameSearch(
     }
 }
 
+// Twitterアカウント検索処理
+async function handleBoothTwitterSearch(
+    query: string,
+    twitterAccount: string,
+    qdrantClient: QdrantClient,
+    llm: ChatGoogleGenerativeAI
+): Promise<LLMResponse> {
+    // Twitterアカウントで検索
+    const boothResults = await searchBoothByTwitter(twitterAccount, qdrantClient, 3);
+
+    const combinedResults = [
+        ...boothResults.map(hit => ({
+            type: 'booth',
+            id: hit.id,
+            score: 1.0,
+            payload: hit.payload
+        }))
+    ];
+
+    const formattedResults = JSON.stringify(combinedResults, null, 2);
+
+    if (combinedResults.length > 0) {
+        const responseMessage = await boothTwitterSearchPrompt.pipe(llm).pipe(new StringOutputParser()).invoke({
+            query: query,
+            searchResults: formattedResults,
+        });
+        return {
+            message: responseMessage,
+            boothResults: boothResults,
+            itemResults: []
+        };
+    } else {
+        return {
+            message: `ごめん！Twitterアカウント「${twitterAccount}」で見つからなかった〜！別のアカウントで試してみてね？`,
+            boothResults: [],
+            itemResults: []
+        };
+    }
+}
+
 // イベント情報処理
 async function handleEventInfo(
     query: string,
@@ -176,4 +216,4 @@ async function handleGeneralChat(
     };
 }
 
-export { handleVectorSearch, handleBoothNameSearch, handleEventInfo, handleGeneralChat };
+export { handleVectorSearch, handleBoothNameSearch, handleBoothTwitterSearch, handleEventInfo, handleGeneralChat };

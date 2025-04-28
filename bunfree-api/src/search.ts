@@ -60,6 +60,39 @@ async function searchBoothByName(
     }
 }
 
+// 新たにTwitterアカウントでのブース検索関数を追加
+async function searchBoothByTwitter(
+    twitterAccount: string,
+    qdrantClient: QdrantClient,
+    limit = 5
+): Promise<BoothResult[]> {
+    try {
+        // ツイッターアカウントで検索（完全一致）
+        const account = twitterAccount.startsWith('@') ? twitterAccount : `@${twitterAccount}`;
+        const filter = {
+            must: [
+                {
+                    key: "twitter",
+                    match: {
+                        value: account,
+                    },
+                },
+            ],
+        };
+        // console.log(`[searchBoothByTwitter] Qdrant scroll params: collection='booths', limit=${limit}, with_payload=true, filter=${JSON.stringify(filter)}`);
+        const searchResult = await qdrantClient.scroll('booths', {
+            limit: limit,
+            with_payload: true,
+            filter,
+        });
+        // console.log(`[searchBoothByTwitter] Qdrant scroll result points:`, searchResult.points);
+        return searchResult.points as unknown as BoothResult[];
+    } catch (error) {
+        console.error('Twitterアカウント検索でエラーが発生しました:', error);
+        return [];
+    }
+}
+
 // アイテム検索関数
 async function searchItems(
     query: string,
@@ -124,4 +157,4 @@ async function searchItemsByBoothName(
     }
 }
 
-export { searchBooths, searchBoothByName, searchItems, searchItemsByBoothName };
+export { searchBooths, searchBoothByName, searchBoothByTwitter, searchItems, searchItemsByBoothName };
