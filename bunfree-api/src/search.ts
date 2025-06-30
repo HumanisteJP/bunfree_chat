@@ -29,7 +29,7 @@ async function searchBooths(
     }
 }
 
-// サークル名検索関数 - 完全一致検索
+// サークル名検索関数 - 部分一致検索
 async function searchBoothByName(
     circleName: string,
     qdrantClient: QdrantClient,
@@ -45,7 +45,7 @@ async function searchBoothByName(
                     {
                         key: "name",
                         match: {
-                            value: circleName,
+                            text: circleName,
                         },
                     },
                 ],

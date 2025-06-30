@@ -154,8 +154,8 @@ const ChatApp = () => {
     loadMessages();
   }, []);
 
-  // 自動スクロール - メッセージが追加されたらスクロール
-  useEffect(() => {
+  // スクロール実行関数 - ユーザーがメッセージを送信したときに呼び出す
+  const scrollToBottom = () => {
     if (messageEndRef.current) {
       // モバイルSafariなどでもスクロールが確実に効くように複数の方法でスクロール
       window.scrollTo({
@@ -174,7 +174,7 @@ const ChatApp = () => {
         messageEndRef.current?.scrollIntoView({ behavior: 'smooth' });
       }, 100);
     }
-  }, [messages]);
+  };
 
   // メッセージ送信処理
   const handleSubmit = async (e: React.FormEvent) => {
@@ -191,6 +191,9 @@ const ChatApp = () => {
     // ユーザーメッセージをチャットに追加
     const userMessage = { role: 'user' as const, content: input };
     setMessages(prev => [...prev, userMessage]);
+
+    // ユーザー入力送信時にスクロール実行
+    scrollToBottom();
 
     // ユーザーメッセージをIndexedDBに保存
     try {
